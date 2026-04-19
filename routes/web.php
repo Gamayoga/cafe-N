@@ -46,8 +46,5 @@ Route::middleware(['auth', 'role:owner'])->prefix('owner')->group(function () {
     Livewire\Volt\Volt::route('reports', 'owner.reports')->name('owner.reports');
 });
 
-// Google Socialite Routes
-Route::get('auth/google', [\App\Http\Controllers\Auth\GoogleSocialiteController::class, 'redirectToGoogle'])->name('google.login');
-Route::get('auth/google/callback', [\App\Http\Controllers\Auth\GoogleSocialiteController::class, 'handleCallback']);
 
 require __DIR__.'/auth.php';

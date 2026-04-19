@@ -16,19 +16,21 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         User::create([
-            'name' => 'Owner Cafe',
-            'email' => 'owner@owner.com',
-            'password' => Hash::make('password'),
+            'name' => 'Owner Northern Cafe',
+            'email' => 'owner@cafe.com',
+            'password' => Hash::make('password123'),
             'role' => 'owner',
             'is_active' => true,
         ]);
 
         User::create([
             'name' => 'Pegawai Cafe',
-            'email' => 'pegawai@pegawai.com',
-            'password' => Hash::make('password'),
+            'email' => 'pegawai@cafe.com',
+            'password' => Hash::make('password123'),
             'role' => 'pegawai',
             'is_active' => true,
         ]);
+
+        $this->call(DemoDataSeeder::class);
     }
 }
