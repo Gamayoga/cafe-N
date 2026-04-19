@@ -28,19 +28,38 @@
             color: white;
             box-shadow: 0 10px 20px -3px rgba(233, 125, 90, 0.4);
         }
+        [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="antialiased text-slate-800">
+<body class="antialiased text-slate-800" x-data="{ mobileMenu: false }">
     <div class="flex min-h-screen">
+        <!-- Sidebar Overlay (Mobile) -->
+        <div x-show="mobileMenu" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="mobileMenu = false"
+             class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[40] lg:hidden" x-cloak></div>
+
         <!-- Sidebar -->
-        <aside class="w-72 sidebar flex flex-col h-screen sticky top-0 print:hidden">
-            <div class="p-8 mb-6">
+        <aside :class="mobileMenu ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+               class="fixed lg:sticky top-0 left-0 w-72 sidebar flex flex-col h-screen z-[50] transition-transform duration-300 ease-in-out print:hidden">
+            
+            <!-- Sidebar Header -->
+            <div class="p-8 mb-6 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-[#E97D5A] rounded-xl flex items-center justify-center shadow-lg shadow-orange-900/50">
                         <svg class="text-white w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                     </div>
                     <span class="text-2xl font-extrabold text-white tracking-tighter">Northern<span class="text-[#E97D5A]">.</span></span>
                 </div>
+                <!-- Close Button (Mobile) -->
+                <button @click="mobileMenu = false" class="lg:hidden text-gray-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
 
             <div class="px-4 flex-1 overflow-y-auto">
@@ -86,7 +105,7 @@
             <!-- Profile Bottom Area -->
             <div class="p-6">
                 <div class="bg-gray-800/40 p-4 rounded-3xl flex items-center justify-between group overflow-hidden relative">
-                    <div class="flex items-center gap-3 relative z-10">
+                    <div class="flex items-center gap-3 relative z-10 text-left">
                         <div class="w-10 h-10 bg-[#E97D5A] rounded-2xl flex items-center justify-center text-white font-bold shadow-lg shadow-orange-900/20">
                             {{ substr(auth()->user()->name, 0, 1) }}{{ substr(strrchr(auth()->user()->name, " "), 1, 1) ?: '' }}
                         </div>
@@ -95,15 +114,12 @@
                             <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Owner</span>
                         </div>
                     </div>
-                    <!-- Simple logout button inside profile -->
                     <form method="POST" action="{{ route('logout') }}" class="relative z-10">
                         @csrf
                         <button type="submit" class="w-8 h-8 rounded-xl bg-gray-700/50 flex items-center justify-center text-gray-400 hover:text-rose-400 hover:bg-gray-700 transition-all">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7"></path></svg>
                         </button>
                     </form>
-                    <!-- Glossy overlay -->
-                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                 </div>
             </div>
         </aside>
@@ -111,31 +127,36 @@
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col min-w-0">
             <!-- Global Top Bar -->
-            <header class="h-24 px-12 flex items-center justify-between print:hidden">
-                <div>
-                   @isset($header)
-                       {{ $header }}
-                   @else
-                       <div class="flex flex-col">
-                            <h2 class="text-3xl font-black text-slate-900 tracking-tighter leading-tight">Selamat pagi, {{ explode(' ', auth()->user()->name)[0] }}</h2>
-                            <p class="text-sm font-bold text-slate-400">{{ now()->translatedFormat('l, d F Y') }}</p>
-                       </div>
-                   @endisset
+            <header class="h-20 lg:h-24 px-6 lg:px-12 flex items-center justify-between print:hidden sticky top-0 bg-[#F8F9FB]/80 backdrop-blur-md z-30">
+                <div class="flex items-center gap-4">
+                    <!-- Hamburger (Mobile) -->
+                    <button @click="mobileMenu = true" class="lg:hidden w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-slate-100 text-slate-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    
+                    @isset($header)
+                        {{ $header }}
+                    @else
+                        <div class="flex flex-col">
+                             <h2 class="text-xl lg:text-3xl font-black text-slate-900 tracking-tighter leading-tight truncate max-w-[150px] sm:max-w-none">Halo, {{ explode(' ', auth()->user()->name)[0] }}</h2>
+                             <p class="hidden sm:block text-[10px] lg:text-sm font-bold text-slate-400">{{ now()->translatedFormat('l, d F Y') }}</p>
+                        </div>
+                    @endisset
                 </div>
                 
-                <div class="flex items-center gap-4">
-                    <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex items-center gap-2 lg:gap-4">
+                    <div class="hidden sm:flex items-center gap-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100">
                         <span class="text-xs font-black text-slate-800 uppercase tracking-widest">Hari ini</span>
                         <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
-                    <button class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-400 hover:text-[#E97D5A] transition-all shadow-sm border border-slate-100">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    <button class="w-10 h-10 lg:w-12 lg:h-12 bg-white rounded-xl lg:rounded-2xl flex items-center justify-center text-slate-400 hover:text-[#E97D5A] transition-all shadow-sm border border-slate-100">
+                        <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                     </button>
                 </div>
             </header>
 
             <!-- Main Scroll Content -->
-            <main class="px-12 pb-12 flex-1 pt-10">
+            <main class="px-6 lg:px-12 pb-12 flex-1 pt-6 lg:pt-10 overflow-x-hidden">
                 {{ $slot }}
             </main>
         </div>

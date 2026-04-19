@@ -102,8 +102,8 @@ $summary = computed(function () {
             </span>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left">
+        <div class="overflow-x-auto -mx-8 lg:mx-0">
+            <table class="w-full text-left min-w-[800px] lg:min-w-full">
                 <thead>
                     <tr class="bg-slate-50/50">
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Pegawai</th>

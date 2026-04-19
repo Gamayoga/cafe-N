@@ -19,6 +19,7 @@ state([
     'customerName' => '',
     'showReceipt' => false,
     'lastTransaction' => null,
+    'showMobileCart' => false,
 ]);
 
 $categories = computed(fn () => 
@@ -130,7 +131,7 @@ $checkout = function () {
 
 ?>
 
-<div class="flex h-full w-full bg-slate-100 overflow-hidden">
+<div class="flex h-screen w-full bg-slate-100 overflow-hidden relative">
     <!-- Left Section: Product Browser -->
     <div class="flex-1 flex flex-col min-w-0 bg-white">
         <!-- Top Header & Search -->
@@ -142,6 +143,18 @@ $checkout = function () {
                 <input wire:model.live="search" type="text" placeholder="Cari menu..." 
                        class="pl-12 pr-6 py-2.5 bg-slate-50 border-0 rounded-2xl w-full text-sm font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all">
             </div>
+
+            <!-- Mobile Cart Toggle -->
+            <button @click="$wire.set('showMobileCart', true)" class="lg:hidden relative">
+                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-slate-100 text-slate-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    @if(count($cart) > 0)
+                        <span class="absolute -top-1 -right-1 w-5 h-5 bg-[#E97D5A] rounded-full text-[10px] font-black text-white flex items-center justify-center border-2 border-white">
+                            {{ collect($cart)->sum('qty') }}
+                        </span>
+                    @endif
+                </div>
+            </button>
 
             <div class="flex items-center gap-4">
                 <div class="text-right">
@@ -155,10 +168,10 @@ $checkout = function () {
         </header>
 
         <!-- Categories -->
-        <div class="px-8 py-6 flex items-center gap-3 overflow-x-auto no-scrollbar border-b border-slate-100 bg-white shadow-sm">
+        <div class="px-6 lg:px-8 py-4 lg:py-6 flex items-center gap-3 overflow-x-auto no-scrollbar border-b border-slate-100 bg-white shadow-sm">
             @foreach($this->categories as $cat)
             <button wire:click="$set('selectedCategory', '{{ $cat }}')" 
-                    class="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest whitespace-nowrap transition-all
+                    class="px-5 lg:px-6 py-2 rounded-xl text-[10px] lg:text-xs font-black uppercase tracking-widest whitespace-nowrap transition-all
                     {{ $selectedCategory == $cat ? 'bg-[#E97D5A] text-white shadow-lg shadow-orange-200' : 'bg-slate-50 text-slate-400 hover:bg-slate-100' }}">
                 {{ $cat }}
             </button>
@@ -166,20 +179,20 @@ $checkout = function () {
         </div>
 
         <!-- Product Grid -->
-        <div class="flex-1 overflow-y-auto p-8 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 bg-slate-50/50">
+        <div class="flex-1 overflow-y-auto p-4 lg:p-8 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 xxl:grid-cols-5 gap-4 lg:gap-6 bg-slate-50/50">
             @forelse($this->products as $p)
             <button wire:click="addToCart({{ $p->id }})" 
-                    class="bg-white rounded-[2rem] p-5 shadow-sm border border-slate-100 flex flex-col hover:border-[#E97D5A] hover:bg-orange-50/10 transition-all group text-left relative overflow-hidden">
-                <div class="w-full aspect-square bg-slate-100 rounded-2xl mb-4 overflow-hidden relative">
+                    class="bg-white rounded-[1.5rem] lg:rounded-[2rem] p-3 lg:p-5 shadow-sm border border-slate-100 flex flex-col hover:border-[#E97D5A] hover:bg-orange-50/10 transition-all group text-left relative overflow-hidden">
+                <div class="w-full aspect-square bg-slate-50 rounded-xl lg:rounded-2xl mb-3 lg:mb-4 overflow-hidden relative">
                     <!-- Image Placeholder -->
                     <div class="absolute inset-0 flex items-center justify-center text-slate-200">
                         <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>
                     </div>
                 </div>
                 <div>
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ $p->category }}</span>
-                    <h3 class="text-sm font-black text-slate-800 leading-tight mb-2 group-hover:text-[#E97D5A] transition-colors">{{ $p->name }}</h3>
-                    <p class="text-lg font-black text-[#E97D5A]">Rp {{ number_format($p->price, 0, ',', '.') }}</p>
+                    <span class="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ $p->category }}</span>
+                    <h3 class="text-xs lg:text-sm font-black text-slate-800 leading-tight mb-1 lg:mb-2 group-hover:text-[#E97D5A] transition-colors truncate">{{ $p->name }}</h3>
+                    <p class="text-base lg:text-lg font-black text-[#E97D5A]">Rp {{ number_format($p->price, 0, ',', '.') }}</p>
                 </div>
                 <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                     <div class="w-8 h-8 bg-[#E97D5A] rounded-xl flex items-center justify-center text-white shadow-lg shadow-orange-200">
@@ -193,9 +206,22 @@ $checkout = function () {
         </div>
     </div>
 
-    <!-- Right Section: Cart -->
-    <div class="w-[400px] bg-white border-l border-slate-100 flex flex-col h-full shadow-2xl relative z-20">
-        <div class="p-8 border-b border-slate-100 flex items-center justify-between bg-white">
+    <!-- Right Section: Cart (Desktop Sidebar / Mobile Drawer) -->
+    <div :class="$wire.showMobileCart ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'"
+         class="fixed lg:static top-0 right-0 w-full lg:w-[400px] h-full bg-white lg:border-l border-slate-100 flex flex-col z-[100] lg:z-20 transition-transform duration-300">
+        
+        <!-- Mobile Cart Header -->
+        <div class="lg:hidden p-6 bg-slate-900 flex items-center justify-between text-white">
+            <div class="flex items-center gap-3">
+                <button @click="$wire.set('showMobileCart', false)" class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+                <h2 class="text-lg font-black tracking-tight">Detail Pesanan</h2>
+            </div>
+            <span class="text-xs font-black px-3 py-1 bg-[#E97D5A] rounded-lg tabular-nums">{{ collect($cart)->sum('qty') }} Items</span>
+        </div>
+
+        <div class="p-6 lg:p-8 border-b border-slate-100 flex items-center justify-between bg-white hidden lg:flex">
             <h2 class="text-xl font-black text-slate-800 tracking-tight">Pesanan</h2>
             <button wire:click="clearCart" class="text-[10px] font-black text-rose-500 uppercase tracking-widest hover:underline">Hapus Semua</button>
         </div>
