@@ -15,6 +15,7 @@ state([
     'showForm' => false,
     'resetPasswordId' => null,
     'newPassword' => '',
+    'errorMessage' => '',
 ]);
 
 rules([
@@ -31,30 +32,35 @@ $employees = computed(fn () =>
 );
 
 $save = function () {
-    if ($this->editingUserId) {
-        $this->validate([
-            'name' => 'required|min:2',
-            'email' => 'required|email|unique:users,email,' . $this->editingUserId,
-        ]);
-        User::find($this->editingUserId)->update([
-            'name' => $this->name,
-            'email' => $this->email,
-        ]);
-    } else {
-        $this->validate([
-            'name' => 'required|min:2',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
-        ]);
-        User::create([
-            'name' => $this->name,
-            'email' => $this->email,
-            'password' => Hash::make($this->password),
-            'role' => 'pegawai',
-            'is_active' => true,
-        ]);
+    try {
+        if ($this->editingUserId) {
+            $this->validate([
+                'name' => 'required|min:2',
+                'email' => 'required|email|unique:users,email,' . $this->editingUserId,
+            ]);
+            User::find($this->editingUserId)->update([
+                'name' => $this->name,
+                'email' => $this->email,
+            ]);
+        } else {
+            $this->validate([
+                'name' => 'required|min:2',
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|min:6',
+            ]);
+            User::create([
+                'name' => $this->name,
+                'email' => $this->email,
+                'password' => Hash::make($this->password),
+                'role' => 'pegawai',
+                'is_active' => true,
+            ]);
+        }
+        $this->errorMessage = '';
+        $this->reset('name', 'email', 'password', 'editingUserId', 'showForm');
+    } catch (\Exception $e) {
+        $this->errorMessage = "Gagal menyimpan data: " . $e->getMessage();
     }
-    $this->reset('name', 'email', 'password', 'editingUserId', 'showForm');
 };
 
 $edit = function ($id) {
@@ -115,7 +121,14 @@ $cancel = function () {
     <div class="bg-white rounded-[2.5rem] p-10 shadow-xl border border-orange-50">
         <h2 class="text-2xl font-black text-slate-800 mb-8">
             {{ $editingUserId ? 'Ubah Data Pegawai' : 'Daftarkan Pegawai Baru' }}
-        </h2>
+        @if($errorMessage)
+        <div class="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-center gap-4 text-rose-600">
+            <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <p class="font-bold text-sm">{{ $errorMessage }}</p>
+            <button type="button" @click="$wire.set('errorMessage', '')" class="ml-auto">✕</button>
+        </div>
+        @endif
+
         <form wire:submit="save">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div>
