@@ -113,7 +113,10 @@ $detailedTransactions = computed(function () {
                 <input type="date" wire:model.live="endDate" class="border-0 p-0 text-sm font-black text-slate-700 focus:ring-0 bg-transparent">
             </div>
             <button wire:click="$refresh" class="w-10 h-10 bg-[#E97D5A] text-white rounded-xl flex items-center justify-center hover:scale-105 transition-all shadow-lg shadow-orange-100">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" 
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                        </path></svg>
             </button>
         </div>
     </div>
@@ -207,7 +210,7 @@ $detailedTransactions = computed(function () {
         </div>
     </div>
 
-    <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden print:border-0 print:shadow-none">
+    <div id="transaksi-section" class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden print:border-0 print:shadow-none">
         <div class="p-10 border-b border-slate-50 flex items-center justify-between print:pt-4">
             <h3 class="text-xl font-black text-slate-800 tracking-tight">Detail Transaksi Terakhir</h3>
             <button onclick="window.print()" class="px-6 py-3 bg-[#1A1A1A] text-white rounded-2xl font-black text-xs hover:scale-105 transition-all print:hidden flex items-center gap-2">
@@ -265,3 +268,22 @@ $detailedTransactions = computed(function () {
         @endif
     </div>
 </div>
+
+@script
+<script>
+    // Scroll to section on initial load if ?page= is already in the URL
+    if (new URLSearchParams(window.location.search).has('page')) {
+        document.getElementById('transaksi-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Scroll after wire:navigate pagination changes the URL
+    if (!window.__txScrollListenerAdded) {
+        window.__txScrollListenerAdded = true;
+        document.addEventListener('livewire:navigated', () => {
+            if (new URLSearchParams(window.location.search).has('page')) {
+                document.getElementById('transaksi-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    }
+</script>
+@endscript

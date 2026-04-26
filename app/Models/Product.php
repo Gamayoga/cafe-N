@@ -17,3 +17,4 @@ class Product extends Model
                     ->withPivot('qty_used');
     }
 }
+    

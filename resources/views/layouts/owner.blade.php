@@ -104,59 +104,47 @@
 
             <!-- Profile Bottom Area -->
             <div class="p-6">
-                <div class="bg-gray-800/40 p-4 rounded-3xl flex items-center justify-between group overflow-hidden relative">
-                    <div class="flex items-center gap-3 relative z-10 text-left">
-                        <div class="w-10 h-10 bg-[#E97D5A] rounded-2xl flex items-center justify-center text-white font-bold shadow-lg shadow-orange-900/20">
+                <div class="bg-gray-800/40 rounded-3xl flex items-stretch overflow-hidden">
+                    <!-- Account Info (Left) -->
+                    <div class="flex-1 px-4 py-4 flex items-center justify-start gap-2 min-w-0">
+                        <div class="w-7 h-7 bg-[#E97D5A] rounded-lg flex items-center justify-center text-white font-bold text-[10px] shrink-0">
                             {{ substr(auth()->user()->name, 0, 1) }}{{ substr(strrchr(auth()->user()->name, " "), 1, 1) ?: '' }}
                         </div>
-                        <div class="flex flex-col">
-                            <span class="text-xs font-black text-white leading-none mb-1">{{ auth()->user()->name }}</span>
-                            <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Owner</span>
+                        <div class="flex flex-col min-w-0">
+                            <span class="text-[11px] font-black text-white leading-none truncate">{{ explode(' ', auth()->user()->name)[0] }}</span>
+                            <span class="text-[9px] font-bold text-gray-500 uppercase tracking-wider mt-0.5">Owner</span>
                         </div>
                     </div>
-                    <form method="POST" action="{{ route('logout') }}" class="relative z-10">
+
+                    <!-- Divider -->
+                    <div class="w-px bg-gray-700/50 my-3"></div>
+
+                    <!-- Logout Button (Right) -->
+                    <form method="POST" action="{{ route('logout') }}" class="shrink-0">
                         @csrf
-                        <button type="submit" class="w-8 h-8 rounded-xl bg-gray-700/50 flex items-center justify-center text-gray-400 hover:text-rose-400 hover:bg-gray-700 transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7"></path></svg>
+                        <button type="submit" title="Logout" class="w-full h-full px-5 flex items-center justify-center text-rose-400 hover:bg-rose-500/20 transition-all">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M13 2C10.2386 2 8 4.23858 8 7C8 7.55228 8.44772 8 9 8C9.55228 8 10 7.55228 10 7C10 5.34315 11.3431 4 13 4H17C18.6569 4 20 5.34315 20 7V17C20 18.6569 18.6569 20 17 20H13C11.3431 20 10 18.6569 10 17C10 16.4477 9.55228 16 9 16C8.44772 16 8 16.4477 8 17C8 19.7614 10.2386 22 13 22H17C19.7614 22 22 19.7614 22 17V7C22 4.23858 19.7614 2 17 2H13Z"/>
+                                <path d="M3 11C2.44772 11 2 11.4477 2 12C2 12.5523 2.44772 13 3 13H11.2821C11.1931 13.1098 11.1078 13.2163 11.0271 13.318C10.7816 13.6277 10.5738 13.8996 10.427 14.0945C10.3536 14.1921 10.2952 14.2705 10.255 14.3251L10.2084 14.3884L10.1959 14.4055L10.1915 14.4115C10.1914 14.4116 10.191 14.4122 11 15L10.1915 14.4115C9.86687 14.8583 9.96541 15.4844 10.4122 15.809C10.859 16.1336 11.4843 16.0346 11.809 15.5879L11.8118 15.584L11.822 15.57L11.8638 15.5132C11.9007 15.4632 11.9553 15.3897 12.0247 15.2975C12.1637 15.113 12.3612 14.8546 12.5942 14.5606C13.0655 13.9663 13.6623 13.2519 14.2071 12.7071L14.9142 12L14.2071 11.2929C13.6623 10.7481 13.0655 10.0337 12.5942 9.43937C12.3612 9.14542 12.1637 8.88702 12.0247 8.7025C11.9553 8.61033 11.9007 8.53682 11.8638 8.48679L11.822 8.43002L11.8118 8.41602L11.8095 8.41281C11.4848 7.96606 10.859 7.86637 10.4122 8.19098C9.96541 8.51561 9.86636 9.14098 10.191 9.58778L11 9C10.191 9.58778 10.1909 9.58773 10.191 9.58778L10.1925 9.58985L10.1959 9.59454L10.2084 9.61162L10.255 9.67492C10.2952 9.72946 10.3536 9.80795 10.427 9.90549C10.5738 10.1004 10.7816 10.3723 11.0271 10.682C11.1078 10.7837 11.1931 10.8902 11.2821 11H3Z"/>
+                            </svg>
                         </button>
                     </form>
                 </div>
             </div>
         </aside>
 
+        <!-- Hamburger Button (Mobile only, fixed top-left) -->
+        <button @click="mobileMenu = true"
+                class="lg:hidden fixed top-4 left-4 z-[45] w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-md border border-slate-100 text-slate-600 print:hidden">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col min-w-0">
-            <!-- Global Top Bar -->
-            <header class="h-20 lg:h-24 px-6 lg:px-12 flex items-center justify-between print:hidden sticky top-0 bg-[#F8F9FB]/80 backdrop-blur-md z-30">
-                <div class="flex items-center gap-4">
-                    <!-- Hamburger (Mobile) -->
-                    <button @click="mobileMenu = true" class="lg:hidden w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-slate-100 text-slate-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                    </button>
-                    
-                    @isset($header)
-                        {{ $header }}
-                    @else
-                        <div class="flex flex-col">
-                             <h2 class="text-xl lg:text-3xl font-black text-slate-900 tracking-tighter leading-tight truncate max-w-[150px] sm:max-w-none">Halo, {{ explode(' ', auth()->user()->name)[0] }}</h2>
-                             <p class="hidden sm:block text-[10px] lg:text-sm font-bold text-slate-400">{{ now()->translatedFormat('l, d F Y') }}</p>
-                        </div>
-                    @endisset
-                </div>
-                
-                <div class="flex items-center gap-2 lg:gap-4">
-                    <div class="hidden sm:flex items-center gap-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100">
-                        <span class="text-xs font-black text-slate-800 uppercase tracking-widest">Hari ini</span>
-                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                    <button class="w-10 h-10 lg:w-12 lg:h-12 bg-white rounded-xl lg:rounded-2xl flex items-center justify-center text-slate-400 hover:text-[#E97D5A] transition-all shadow-sm border border-slate-100">
-                        <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                    </button>
-                </div>
-            </header>
-
             <!-- Main Scroll Content -->
-            <main class="px-6 lg:px-12 pb-12 flex-1 pt-6 lg:pt-10 overflow-x-hidden">
+            <main class="px-6 lg:px-12 pb-12 flex-1 pt-16 lg:pt-10 overflow-x-hidden">
                 {{ $slot }}
             </main>
         </div>

@@ -85,7 +85,12 @@ $recentAttendance = computed(function () {
 ?>
 
 <div class="space-y-8">
-    
+    <!-- Header: Overview only -->
+    <div class="print:hidden">
+        <h1 class="text-4xl font-extrabold text-slate-900 tracking-tighter">Halo, {{ explode(' ', auth()->user()->name)[0] }}</h1>
+        <p class="text-slate-400 font-bold mt-1 text-sm">{{ now()->translatedFormat('l, d F Y') }}</p>
+    </div>
+
     <!-- Top Metrics Row -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <!-- Revenue Card -->
