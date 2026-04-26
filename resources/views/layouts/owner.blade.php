@@ -126,35 +126,6 @@
 
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col min-w-0">
-            <!-- Global Top Bar -->
-            <header class="h-20 lg:h-24 px-6 lg:px-12 flex items-center justify-between print:hidden sticky top-0 bg-[#F8F9FB]/80 backdrop-blur-md z-30">
-                <div class="flex items-center gap-4">
-                    <!-- Hamburger (Mobile) -->
-                    <button @click="mobileMenu = true" class="lg:hidden w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-slate-100 text-slate-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                    </button>
-                    
-                    @isset($header)
-                        {{ $header }}
-                    @else
-                        <div class="flex flex-col">
-                             <h2 class="text-xl lg:text-3xl font-black text-slate-900 tracking-tighter leading-tight truncate max-w-[150px] sm:max-w-none">Halo, {{ explode(' ', auth()->user()->name)[0] }}</h2>
-                             <p class="hidden sm:block text-[10px] lg:text-sm font-bold text-slate-400">{{ now()->translatedFormat('l, d F Y') }}</p>
-                        </div>
-                    @endisset
-                </div>
-                
-                <div class="flex items-center gap-2 lg:gap-4">
-                    <div class="hidden sm:flex items-center gap-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100">
-                        <span class="text-xs font-black text-slate-800 uppercase tracking-widest">Hari ini</span>
-                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                    <button class="w-10 h-10 lg:w-12 lg:h-12 bg-white rounded-xl lg:rounded-2xl flex items-center justify-center text-slate-400 hover:text-[#E97D5A] transition-all shadow-sm border border-slate-100">
-                        <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                    </button>
-                </div>
-            </header>
-
             <!-- Main Scroll Content -->
             <main class="px-6 lg:px-12 pb-12 flex-1 pt-6 lg:pt-10 overflow-x-hidden">
                 {{ $slot }}
