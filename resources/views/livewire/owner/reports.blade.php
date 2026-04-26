@@ -210,7 +210,7 @@ $detailedTransactions = computed(function () {
         </div>
     </div>
 
-    <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden print:border-0 print:shadow-none">
+    <div id="transaksi-section" class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden print:border-0 print:shadow-none">
         <div class="p-10 border-b border-slate-50 flex items-center justify-between print:pt-4">
             <h3 class="text-xl font-black text-slate-800 tracking-tight">Detail Transaksi Terakhir</h3>
             <button onclick="window.print()" class="px-6 py-3 bg-[#1A1A1A] text-white rounded-2xl font-black text-xs hover:scale-105 transition-all print:hidden flex items-center gap-2">
@@ -268,3 +268,22 @@ $detailedTransactions = computed(function () {
         @endif
     </div>
 </div>
+
+@script
+<script>
+    // Scroll to section on initial load if ?page= is already in the URL
+    if (new URLSearchParams(window.location.search).has('page')) {
+        document.getElementById('transaksi-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Scroll after wire:navigate pagination changes the URL
+    if (!window.__txScrollListenerAdded) {
+        window.__txScrollListenerAdded = true;
+        document.addEventListener('livewire:navigated', () => {
+            if (new URLSearchParams(window.location.search).has('page')) {
+                document.getElementById('transaksi-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    }
+</script>
+@endscript
