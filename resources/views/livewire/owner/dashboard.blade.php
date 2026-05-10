@@ -45,18 +45,33 @@ $chartData = computed(function () {
     $data = [];
     for ($i = 6; $i >= 0; $i--) {
         $date = today()->subDays($i);
+        $revenue = Transaction::whereDate('created_at', $date)->sum('total_amount');
         $data[] = [
             'day' => $date->translatedFormat('D'),
-            'revenue' => Transaction::whereDate('created_at', $date)->sum('total_amount'),
+            'revenue' => $revenue,
         ];
     }
     
     $max = collect($data)->max('revenue') ?: 1;
-    foreach ($data as &$d) {
-        $d['height'] = $max > 0 ? ($d['revenue'] / $max) * 100 : 0;
+    $points = "";
+    $width = 100; // Total lebar internal SVG
+    $height = 100; // Total tinggi internal SVG
+
+    foreach ($data as $idx => &$d) {
+        $d['height'] = ($d['revenue'] / $max) * 100;
+        
+        // Menghitung koordinat untuk garis SVG
+        // X = jarak antar titik (100 / 6 hari)
+        // Y = 100 - tinggi (karena koordinat SVG 0 ada di atas)
+        $x = ($idx * ($width / 6));
+        $y = $height - ($d['height'] * 0.8 + 10); // 0.8 dan +10 agar garis tidak mentok atas/bawah
+        $points .= "$x,$y ";
     }
     
-    return $data;
+    return [
+        'items' => $data,
+        'points' => trim($points)
+    ];
 });
 
 $topProducts = computed(function () {
@@ -179,22 +194,63 @@ $recentAttendance = computed(function () {
                 <span class="text-[10px] font-black text-[#E97D5A] uppercase tracking-widest">Update Real-time</span>
             </div>
             <!-- Visual Chart -->
-            <div class="flex items-end justify-between h-48 px-2 gap-4">
-                @foreach($this->chartData as $data)
-                <div class="flex-1 flex flex-col items-center gap-4 group h-full justify-end">
-                    <div class="w-full bg-slate-50 rounded-2xl relative h-full overflow-hidden border border-slate-50">
-                        <div class="absolute bottom-0 left-0 w-full bg-[#E97D5A] transition-all duration-700 rounded-t-xl" style="height: {{ $data['height'] }}%">
-                            <div class="absolute top-0 left-0 w-full h-1 bg-white/20"></div>
-                        </div>
-                        <!-- Tooltip on hover -->
-                        <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[9px] font-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
-                            Rp {{ number_format($data['revenue'], 0, ',', '.') }}
-                        </div>
-                    </div>
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{{ $data['day'] }}</span>
+            <div class="relative h-64 w-full pt-10">
+    
+    <div class="absolute inset-0 flex justify-between px-2 z-0">
+        @foreach($this->chartData['items'] as $index => $data)
+            <div class="h-48 border-l-2 border-slate-200 border-dashed relative"></div>
+        @endforeach
+        <div class="h-48 border-l-2 border-slate-200 border-dashed"></div>
+    </div>
+
+    <div class="relative h-48 w-full z-10">
+        <svg viewBox="0 0 100 100" class="w-full h-full preserve-aspect-none overflow-visible" preserveAspectRatio="none">
+            <defs>
+                <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#E97D5A;stop-opacity:0.25" />
+                    <stop offset="100%" style="stop-color:#E97D5A;stop-opacity:0" />
+                </linearGradient>
+            </defs>
+            
+            <polyline fill="url(#grad)" stroke="none" 
+                points="0,100 {{ $this->chartData['points'] }} 100,100" />
+
+            <polyline
+                fill="none"
+                stroke="#E97D5A"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                points="{{ $this->chartData['points'] }}"
+            />
+
+            @foreach(explode(' ', $this->chartData['points']) as $point)
+                @php $coord = explode(',', $point); @endphp
+                @if(count($coord) == 2)
+                    <circle cx="{{ $coord[0] }}" cy="{{ $coord[1] }}" r="2" fill="white" stroke="#E97D5A" stroke-width="1" />
+                @endif
+            @endforeach
+        </svg>
+
+        <div class="absolute inset-0 flex justify-between z-20">
+            @foreach($this->chartData['items'] as $idx => $data)
+            <div class="flex-1 relative group cursor-pointer">
+                
+                <div class="absolute left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[11px] font-black px-4 py-2.5 rounded-3xl opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap z-30 shadow-2xl scale-75 group-hover:scale-100"
+                     style="top: {{ 100 - ($data['height'] * 0.8 + 10) }}%; margin-top: -60px;">
+                    <p class="text-[9px] text-slate-400 uppercase mb-0.5 tracking-wider">{{ $data['day'] }}</p>
+                    Rp {{ number_format($data['revenue'], 0, ',', '.') }}
+                    <div class="absolute bottom-[-5px] left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-slate-900 rotate-45"></div>
                 </div>
-                @endforeach
+
+                <div class="absolute -bottom-14 left-1/2 -translate-x-1/2 text-[11px] font-black text-slate-400 uppercase tracking-tight group-hover:text-[#E97D5A] transition-colors">
+                    {{ $data['day'] }}
+                </div>
             </div>
+            @endforeach
+        </div>
+    </div>
+</div>
         </div>
 
         <!-- Top Selling Panel -->
