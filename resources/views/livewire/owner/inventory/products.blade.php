@@ -2,9 +2,11 @@
 
 use App\Models\Product;
 use App\Models\Ingredient;
-use function Livewire\Volt\{state, layout, rules, computed};
+use Illuminate\Support\Facades\Storage;
+use function Livewire\Volt\{state, layout, rules, computed, usesFileUploads};
 
 layout('layouts.owner');
+usesFileUploads();
 
 state([
     'search' => '',
@@ -16,6 +18,9 @@ state([
     'showForm' => false,
     // Recipe fields: array of [ingredient_id, qty_used]
     'recipeRows' => [],
+    // Image upload (TemporaryUploadedFile) + path saved
+    'image' => null,
+    'existingImage' => null,
 ]);
 
 rules([
@@ -23,6 +28,7 @@ rules([
     'category' => 'required',
     'price' => 'required|numeric|min:0',
     'is_available' => 'boolean',
+    'image' => 'nullable|image|max:2048', // 2MB
     'recipeRows.*.ingredient_id' => 'required|exists:ingredients,id',
     'recipeRows.*.qty_used' => 'required|numeric|min:0.01',
 ]);
@@ -55,6 +61,14 @@ $save = function () {
         'is_available' => $this->is_available,
     ];
 
+    // Handle image upload: store new file, hapus file lama jika diganti
+    if ($this->image) {
+        if ($this->existingImage) {
+            Storage::disk('public')->delete($this->existingImage);
+        }
+        $data['image_url'] = $this->image->store('products', 'public');
+    }
+
     if ($this->editingProductId) {
         $product = Product::find($this->editingProductId);
         $product->update($data);
@@ -71,7 +85,7 @@ $save = function () {
     }
     $product->ingredients()->sync($sync);
 
-    $this->reset('name', 'category', 'price', 'is_available', 'editingProductId', 'showForm', 'recipeRows');
+    $this->reset('name', 'category', 'price', 'is_available', 'editingProductId', 'showForm', 'recipeRows', 'image', 'existingImage');
     $this->category = 'Coffee';
     $this->is_available = true;
 };
@@ -83,11 +97,24 @@ $edit = function ($id) {
     $this->category = $p->category;
     $this->price = $p->price;
     $this->is_available = $p->is_available;
+    $this->existingImage = $p->image_url;
+    $this->image = null;
     $this->recipeRows = $p->ingredients->map(fn ($i) => [
         'ingredient_id' => $i->id,
         'qty_used' => $i->pivot->qty_used,
     ])->toArray();
     $this->showForm = true;
+};
+
+$removeImage = function () {
+    if ($this->existingImage) {
+        Storage::disk('public')->delete($this->existingImage);
+        if ($this->editingProductId) {
+            Product::where('id', $this->editingProductId)->update(['image_url' => null]);
+        }
+        $this->existingImage = null;
+    }
+    $this->image = null;
 };
 
 $toggleAvailability = function ($id) {
@@ -96,11 +123,15 @@ $toggleAvailability = function ($id) {
 };
 
 $delete = function ($id) {
-    Product::find($id)->delete();
+    $p = Product::find($id);
+    if ($p->image_url) {
+        Storage::disk('public')->delete($p->image_url);
+    }
+    $p->delete();
 };
 
 $cancel = function () {
-    $this->reset('name', 'category', 'price', 'is_available', 'editingProductId', 'showForm', 'recipeRows');
+    $this->reset('name', 'category', 'price', 'is_available', 'editingProductId', 'showForm', 'recipeRows', 'image', 'existingImage');
     $this->category = 'Coffee';
     $this->is_available = true;
 };
@@ -129,6 +160,43 @@ $cancel = function () {
         </h2>
 
         <form wire:submit="save">
+            <!-- Image Upload -->
+            <div class="mb-8">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Foto Produk</label>
+                <div class="flex items-start gap-6">
+                    <!-- Preview -->
+                    <div class="w-32 h-32 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+                        @if($image)
+                            <img src="{{ $image->temporaryUrl() }}" class="w-full h-full object-cover" alt="Preview">
+                        @elseif($existingImage)
+                            <img src="{{ Storage::url($existingImage) }}" class="w-full h-full object-cover" alt="Existing">
+                        @else
+                            <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        @endif
+                    </div>
+                    <!-- Input -->
+                    <div class="flex-1">
+                        <label class="inline-block cursor-pointer">
+                            <span class="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest transition-all inline-flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                {{ $image || $existingImage ? 'Ganti Foto' : 'Pilih Foto' }}
+                            </span>
+                            <input wire:model="image" type="file" accept="image/*" class="hidden">
+                        </label>
+                        @if($image || $existingImage)
+                            <button type="button" wire:click="removeImage"
+                                    class="ml-2 px-5 py-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl font-black text-xs uppercase tracking-widest transition-all inline-flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                Hapus
+                            </button>
+                        @endif
+                        <p class="text-[11px] text-slate-400 font-bold mt-3">Format: JPG/PNG. Maksimal 2MB.</p>
+                        <div wire:loading wire:target="image" class="text-[11px] text-[#E97D5A] font-black mt-1 uppercase tracking-widest">Mengunggah...</div>
+                        @error('image') <span class="text-rose-500 text-xs font-bold mt-1 ml-1 block">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+            </div>
+
             <!-- Basic Info -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="md:col-span-2">
@@ -268,9 +336,14 @@ $cancel = function () {
                     <tr class="hover:bg-slate-50/50 transition-colors group">
                         <td class="px-8 py-6">
                             <div class="flex items-center gap-4">
-                                <div class="w-11 h-11 bg-[#111111] rounded-2xl flex items-center justify-center text-white font-black text-sm group-hover:bg-[#E97D5A] transition-colors">
-                                    {{ substr($p->name, 0, 1) }}
-                                </div>
+                                @if($p->image_url)
+                                    <img src="{{ Storage::url($p->image_url) }}" alt="{{ $p->name }}"
+                                         class="w-11 h-11 rounded-2xl object-cover border border-slate-100">
+                                @else
+                                    <div class="w-11 h-11 bg-[#111111] rounded-2xl flex items-center justify-center text-white font-black text-sm group-hover:bg-[#E97D5A] transition-colors">
+                                        {{ substr($p->name, 0, 1) }}
+                                    </div>
+                                @endif
                                 <span class="font-black text-slate-700">{{ $p->name }}</span>
                             </div>
                         </td>
