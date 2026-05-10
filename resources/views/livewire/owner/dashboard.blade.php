@@ -54,7 +54,7 @@ $chartData = computed(function () {
     
     $max = collect($data)->max('revenue') ?: 1;
     $points = "";
-    $width = 100; // Total lebar internal SVG
+    $width = 700; // Total lebar internal SVG (aspect ratio ~7:1 biar tidak stretch)
     $height = 100; // Total tinggi internal SVG
 
     foreach ($data as $idx => &$d) {
@@ -204,33 +204,37 @@ $recentAttendance = computed(function () {
     </div>
 
     <div class="relative h-48 w-full z-10">
-        <svg viewBox="0 0 100 100" class="w-full h-full preserve-aspect-none overflow-visible" preserveAspectRatio="none">
+        <svg viewBox="0 0 700 100" class="w-full h-full overflow-visible" preserveAspectRatio="none">
             <defs>
                 <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" style="stop-color:#E97D5A;stop-opacity:0.25" />
                     <stop offset="100%" style="stop-color:#E97D5A;stop-opacity:0" />
                 </linearGradient>
             </defs>
-            
-            <polyline fill="url(#grad)" stroke="none" 
-                points="0,100 {{ $this->chartData['points'] }} 100,100" />
+
+            <polyline fill="url(#grad)" stroke="none"
+                points="0,100 {{ $this->chartData['points'] }} 700,100" />
 
             <polyline
                 fill="none"
                 stroke="#E97D5A"
-                stroke-width="3"
+                stroke-width="2.5"
                 stroke-linecap="round"
                 stroke-linejoin="round"
+                vector-effect="non-scaling-stroke"
                 points="{{ $this->chartData['points'] }}"
             />
-
-            @foreach(explode(' ', $this->chartData['points']) as $point)
-                @php $coord = explode(',', $point); @endphp
-                @if(count($coord) == 2)
-                    <circle cx="{{ $coord[0] }}" cy="{{ $coord[1] }}" r="2" fill="white" stroke="#E97D5A" stroke-width="1" />
-                @endif
-            @endforeach
         </svg>
+
+        <!-- Dots sebagai HTML supaya tetap bulat sempurna (tidak ke-stretch oleh SVG) -->
+        @foreach($this->chartData['items'] as $idx => $data)
+            @php
+                $xPct = ($idx / 6) * 100;
+                $yPct = 100 - ($data['height'] * 0.8 + 10);
+            @endphp
+            <div class="absolute w-2.5 h-2.5 rounded-full bg-white border-2 border-[#E97D5A] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                 style="left: {{ $xPct }}%; top: {{ $yPct }}%;"></div>
+        @endforeach
 
         <div class="absolute inset-0 flex justify-between z-20">
             @foreach($this->chartData['items'] as $idx => $data)
