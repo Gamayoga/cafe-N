@@ -199,27 +199,47 @@ $recentAttendance = computed(function () {
 
         <!-- Top Selling Panel -->
         <div class="lg:col-span-4 bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
-            <div class="flex items-center justify-between mb-10">
-                <h3 class="text-xl font-extrabold text-slate-800 tracking-tight leading-tight">Menu unggulan</h3>
-                <a href="{{ route('owner.inventory.products') }}" class="text-xs font-black text-[#E97D5A] uppercase tracking-widest text-right hover:underline">Semua</a>
-            </div>
-            <div class="space-y-6">
-                @forelse($this->topProducts as $idx => $product)
-                @php $colors = ['bg-orange-400', 'bg-rose-400', 'bg-amber-400', 'bg-emerald-400']; @endphp
-                <div class="space-y-2">
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            <span class="w-2 h-2 {{ $colors[$idx % 4] }} rounded-full"></span>
-                            <span class="text-xs font-black text-slate-600 uppercase tracking-tight">{{ $product->name }}</span>
+    <div class="flex items-center justify-between mb-10">
+        <h3 class="text-xl font-extrabold text-slate-800 tracking-tight leading-tight">Menu unggulan</h3>
+        <a href="{{ route('owner.inventory.products') }}" class="text-xs font-black text-[#E97D5A] uppercase tracking-widest text-right hover:underline">Semua</a>
+    </div>
+    <div class="space-y-6">
+        @forelse($this->topProducts as $idx => $product)
+            @php
+                // Definisi warna berbeda untuk tiap peringkat
+                $bgColors = ['bg-orange-100', 'bg-rose-100', 'bg-amber-100', 'bg-emerald-100'];
+                $textColors = ['text-orange-600', 'text-rose-600', 'text-amber-600', 'text-emerald-600'];
+                $borderColors = ['border-orange-200', 'border-rose-200', 'border-amber-200', 'border-emerald-200'];
+                $hoverColors = ['group-hover:bg-orange-600', 'group-hover:bg-rose-600', 'group-hover:bg-amber-600', 'group-hover:bg-emerald-600'];
+                
+                $i = $idx % 4; // Supaya tidak error jika data lebih dari 4
+            @endphp
+            
+            <div class="group cursor-default">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <div class="w-9 h-9 rounded-2xl {{ $bgColors[$i] }} border {{ $borderColors[$i] }} flex items-center justify-center text-sm font-black {{ $textColors[$i] }} shadow-sm {{ $hoverColors[$i] }} group-hover:text-white group-hover:-rotate-6 transition-all duration-300">
+                            {{ $idx + 1 }}
                         </div>
-                        <span class="text-[10px] font-black text-slate-400">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
+                        
+                        <div class="flex flex-col">
+                            <span class="text-xs font-black text-slate-700 uppercase tracking-tight group-hover:text-slate-900 transition-colors">{{ $product->name }}</span>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Terlaris #{{ $idx + 1 }}</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-black text-slate-800 block">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
+                        <span class="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">Per Porsi</span>
                     </div>
                 </div>
-                @empty
-                <p class="text-sm font-bold text-slate-300 italic text-center py-10">Belum ada data produk.</p>
-                @endforelse
             </div>
-        </div>
+        @empty
+            <div class="flex flex-col items-center py-10 text-center">
+                <p class="text-sm font-bold text-slate-300 italic">Belum ada data produk.</p>
+            </div>
+        @endforelse
+    </div>
+</div>
     </div>
 
     <!-- Bottom Row -->
