@@ -7,6 +7,7 @@ use App\Models\Ingredient;
 use App\Models\StockLog;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use function Livewire\Volt\{state, layout, computed, on};
 
 layout('layouts.cashier');
@@ -184,10 +185,14 @@ $checkout = function () {
             <button wire:click="addToCart({{ $p->id }})" 
                     class="bg-white rounded-[1.5rem] lg:rounded-[2rem] p-3 lg:p-5 shadow-sm border border-slate-100 flex flex-col hover:border-[#E97D5A] hover:bg-orange-50/10 transition-all group text-left relative overflow-hidden">
                 <div class="w-full aspect-square bg-slate-50 rounded-xl lg:rounded-2xl mb-3 lg:mb-4 overflow-hidden relative">
-                    <!-- Image Placeholder -->
-                    <div class="absolute inset-0 flex items-center justify-center text-slate-200">
-                        <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>
-                    </div>
+                    @if($p->image_url)
+                        <img src="{{ Storage::url($p->image_url) }}" alt="{{ $p->name }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    @else
+                        <!-- Image Placeholder -->
+                        <div class="absolute inset-0 flex items-center justify-center text-slate-200">
+                            <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>
+                        </div>
+                    @endif
                 </div>
                 <div>
                     <span class="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ $p->category }}</span>
@@ -231,7 +236,11 @@ $checkout = function () {
             @forelse($this->cart as $item)
             <div class="flex gap-4">
                 <div class="w-16 h-16 bg-slate-50 rounded-2xl shrink-0 overflow-hidden flex items-center justify-center text-slate-200">
-                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>
+                    @if(!empty($item['image']))
+                        <img src="{{ Storage::url($item['image']) }}" alt="{{ $item['name'] }}" class="w-full h-full object-cover">
+                    @else
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>
+                    @endif
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="flex justify-between items-start mb-1">

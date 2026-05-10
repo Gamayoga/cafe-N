@@ -135,7 +135,11 @@ $criticalIngredients = computed(function () {
                 <div class="{{ $colorClass }} border rounded-[2.5rem] p-6 shadow-sm transition-all hover:shadow-md group relative overflow-hidden">
                     <div class="flex items-start gap-5 relative z-10">
                         <div class="w-20 h-20 bg-slate-100 rounded-3xl overflow-hidden shrink-0 flex items-center justify-center text-slate-300">
-                             <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>
+                            @if(!empty($item['image']))
+                                <img src="{{ \Illuminate\Support\Facades\Storage::url($item['image']) }}" alt="{{ $item['name'] }}" class="w-full h-full object-cover">
+                            @else
+                                <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>
+                            @endif
                         </div>
                         <div class="flex-1 min-w-0">
                             <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">{{ $item['category'] }}</span>

@@ -4,41 +4,47 @@ use App\Models\Attendance;
 use App\Models\User;
 use function Livewire\Volt\{state, layout, computed, mount};
 
-layout('layouts.owner');
+layout("layouts.owner");
 
 state([
-    'selectedDate' => '',
+    "selectedDate" => "",
 ]);
 
 mount(function () {
-    $this->selectedDate = now()->format('Y-m-d');
+    $this->selectedDate = now()->format("Y-m-d");
 });
 
 $attendanceData = computed(function () {
-    $date = $this->selectedDate ?: now()->format('Y-m-d');
+    $date = $this->selectedDate ?: now()->format("Y-m-d");
 
     // Get all pegawai
-    $employees = User::where('role', 'pegawai')->where('is_active', true)->get();
+    $employees = User::where("role", "pegawai")
+        ->where("is_active", true)
+        ->get();
 
     // Get attendance records for date
-    $records = Attendance::with('user')
-        ->whereDate('date', $date)
+    $records = Attendance::with("user")
+        ->whereDate("date", $date)
         ->get()
-        ->keyBy('user_id');
+        ->keyBy("user_id");
 
     return $employees->map(function ($emp) use ($records) {
         $att = $records->get($emp->id);
         return [
-            'id' => $emp->id,
-            'name' => $emp->name,
-            'check_in' => $att?->check_in,
-            'check_out' => $att?->check_out,
-            'notes' => $att?->notes,
-            'check_in_photo' => $att?->check_in_photo,
-            'check_out_photo' => $att?->check_out_photo,
-            'status' => $att
-                ? ($att->check_in && strtotime($att->check_in) > strtotime($this->selectedDate . ' 08:15:00') ? 'Terlambat' : 'On Time')
-                : 'Tidak Hadir',
+            "id" => $emp->id,
+            "name" => $emp->name,
+            "check_in" => $att?->check_in,
+            "check_out" => $att?->check_out,
+            "notes" => $att?->notes,
+            "check_in_photo" => $att?->check_in_photo,
+            "check_out_photo" => $att?->check_out_photo,
+            "status" => $att
+                ? ($att->check_in &&
+                strtotime($att->check_in) >
+                    strtotime($this->selectedDate . " 08:15:00")
+                    ? "Terlambat"
+                    : "On Time")
+                : "Tidak Hadir",
         ];
     });
 });
@@ -46,14 +52,13 @@ $attendanceData = computed(function () {
 $summary = computed(function () {
     $data = $this->attendanceData;
     return [
-        'total' => $data->count(),
-        'hadir' => $data->where('status', '!=', 'Tidak Hadir')->count(),
-        'ontime' => $data->where('status', 'On Time')->count(),
-        'terlambat' => $data->where('status', 'Terlambat')->count(),
-        'absen' => $data->where('status', 'Tidak Hadir')->count(),
+        "total" => $data->count(),
+        "hadir" => $data->where("status", "!=", "Tidak Hadir")->count(),
+        "ontime" => $data->where("status", "On Time")->count(),
+        "terlambat" => $data->where("status", "Terlambat")->count(),
+        "absen" => $data->where("status", "Tidak Hadir")->count(),
     ];
 });
-
 ?>
 
 <div class="space-y-8 pb-20">
@@ -111,8 +116,7 @@ $summary = computed(function () {
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Foto</th>
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Pulang</th>
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Foto</th>
-                        <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Keterangan</th>
-                        <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Status</th>
+                        <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
@@ -177,18 +181,16 @@ $summary = computed(function () {
                                 <span class="text-[10px] font-bold text-slate-300 italic">—</span>
                             @endif
                         </td>
-                        <td class="px-8 py-6">
-                            <span class="text-sm font-bold text-slate-400 italic">{{ $row['notes'] ?: '—' }}</span>
-                        </td>
-                        <td class="px-8 py-6">
-                            <span class="px-3 py-1.5 {{ $statusStyle }} rounded-xl text-[10px] font-black uppercase tracking-wider">
+
+                        <td class="px-8 py-6 text-center">
+                            <span class="inline-flex items-center px-3 py-1.5 {{ $statusStyle }} rounded-xl text-[10px] font-black uppercase tracking-wider">
                                 {{ $statusIcon }} {{ $row['status'] }}
                             </span>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-8 py-20 text-center">
+                        <td colspan="6" class="px-8 py-20 text-center">
                             <div class="flex flex-col items-center justify-center">
                                 <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mb-4 border border-slate-100">
                                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
