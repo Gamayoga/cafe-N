@@ -307,7 +307,7 @@ $recentAttendance = computed(function () {
         <!-- Ingredient Status -->
         <div class="lg:col-span-4 bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
             <div class="flex items-center justify-between mb-8">
-                <h3 class="text-xl font-extrabold text-slate-800 tracking-tight">Status stok kritis</h3>
+                <h3 class="text-xl font-extrabold text-slate-800 tracking-tight">Status Stok Menipis</h3>
                 <a href="{{ route('owner.inventory.ingredients') }}" class="text-xs font-black text-[#E97D5A] uppercase tracking-widest hover:underline">Detail</a>
             </div>
             <div class="space-y-4">
@@ -334,7 +334,7 @@ $recentAttendance = computed(function () {
         <!-- Presence Today -->
         <div class="lg:col-span-4 bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
             <div class="flex items-center justify-between mb-8">
-                <h3 class="text-xl font-extrabold text-slate-800 tracking-tight">Presensi hari ini</h3>
+                <h3 class="text-xl font-extrabold text-slate-800 tracking-tight">Presensi Kehadiran Pegawai</h3>
                 <a href="{{ route('owner.attendance') }}" class="text-xs font-black text-[#E97D5A] uppercase tracking-widest hover:underline">Lengkap</a>
             </div>
             <div class="space-y-4">
@@ -356,37 +356,6 @@ $recentAttendance = computed(function () {
                     <p class="text-xs font-bold text-slate-300 italic">Belum ada pegawai check-in hari ini</p>
                 </div>
                 @endforelse
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="lg:col-span-4 bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
-            <h3 class="text-xl font-extrabold text-slate-800 tracking-tight mb-8">Aksi cepat</h3>
-            <div class="grid grid-cols-1 gap-4">
-                <a href="{{ route('owner.inventory.suppliers') }}" class="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-3xl group hover:border-[#E97D5A] hover:bg-orange-50/20 transition-all">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-gray-50 rounded-2xl border border-slate-100 flex items-center justify-center text-[#E97D5A] group-hover:bg-[#E97D5A] group-hover:text-white transition-colors">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        </div>
-                        <div class="text-left">
-                            <p class="text-sm font-black text-slate-800 leading-tight">Supplier</p>
-                            <p class="text-[10px] font-bold text-slate-400 leading-tight uppercase tracking-widest mt-0.5">Kelola Rekanan</p>
-                        </div>
-                    </div>
-                    <svg class="w-4 h-4 text-slate-300 group-hover:text-[#E97D5A] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
-                </a>
-                
-                <a href="{{ route('owner.employees') }}" class="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-3xl group hover:border-[#E97D5A] hover:bg-orange-50/20 transition-all">
-                    <div class="flex items-center gap-4 text-left">
-                        <div class="w-12 h-12 bg-gray-50 rounded-2xl border border-slate-100 flex items-center justify-center text-[#E97D5A] group-hover:bg-[#E97D5A] group-hover:text-white transition-colors">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                        </div>
-                        <div>
-                            <p class="text-sm font-black text-slate-800 leading-tight">Pegawai</p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Atur Akun Staff</p>
-                        </div>
-                    </div>
-                </a>
             </div>
         </div>
     </div>
