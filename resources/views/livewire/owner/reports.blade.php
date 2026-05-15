@@ -41,7 +41,7 @@ $chartData = computed(function () {
     
     $daysCount = $start->diffInDays($end) + 1;
     
-    // Limits the dots on chart if range is too long
+    // Interval agar titik tidak terlalu rapat jika rentang waktu lama
     $interval = $daysCount > 31 ? ceil($daysCount / 20) : 1; 
 
     $data = [];
@@ -50,24 +50,42 @@ $chartData = computed(function () {
         ->get()
         ->groupBy(fn ($t) => $t->created_at->format('Y-m-d'));
 
+    $points = "";
+    $width = 1000; // Lebar virtual SVG
+    $height = 100; // Tinggi virtual SVG
+
+    $items = [];
     for ($i = 0; $i < $daysCount; $i += $interval) {
         $date = $start->copy()->addDays($i);
         $dateStr = $date->format('Y-m-d');
-        
         $dayRevenue = $raw->has($dateStr) ? $raw->get($dateStr)->sum('total_amount') : 0;
         
-        $data[] = [
+        $items[] = [
             'label' => $date->format('d M'),
             'value' => (float)$dayRevenue,
         ];
     }
 
-    $max = collect($data)->max('value') ?: 1;
-    foreach ($data as &$d) {
-        $d['height'] = ($d['value'] / $max) * 100;
+    $max = collect($items)->max('value') ?: 1;
+    $count = count($items);
+
+    foreach ($items as $idx => $item) {
+        // Hitung posisi X (0 sampai 1000)
+        $x = ($count > 1) ? ($idx * ($width / ($count - 1))) : 0;
+        // Hitung posisi Y (Tinggi dikurangi persentase nilai)
+        $y = $height - (($item['value'] / $max) * 80 + 10); 
+        
+        $points .= "$x,$y ";
+        
+        // Simpan posisi untuk Dot HTML
+        $items[$idx]['x_pos'] = ($count > 1) ? ($idx / ($count - 1)) * 100 : 0;
+        $items[$idx]['y_pos'] = (($height - $y) / $height) * 100; // Persentase dari bawah
     }
 
-    return $data;
+    return [
+        'items' => $items,
+        'points' => trim($points)
+    ];
 });
 
 $topProducts = computed(function () {
@@ -161,30 +179,67 @@ $detailedTransactions = computed(function () {
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <!-- Sales Trend -->
         <div class="lg:col-span-8 bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
-            <div class="flex items-center justify-between mb-12">
-                <h3 class="text-xl font-extrabold text-slate-800 tracking-tight">Tren Penjualan</h3>
-                <div class="flex items-center gap-4">
-                     <span class="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase">
-                         <span class="w-3 h-3 bg-[#E97D5A] rounded-full"></span> Pendapatan
-                     </span>
-                </div>
-            </div>
-            <div class="flex items-end justify-between h-64 px-2 gap-2">
-                @foreach($this->chartData as $data)
-                <div class="flex-1 flex flex-col items-center gap-4 group h-full justify-end">
-                    <div class="w-full bg-slate-50/50 rounded-2xl relative h-full overflow-hidden border border-slate-50">
-                        <div class="absolute bottom-0 left-0 w-full bg-[#E97D5A] transition-all duration-700 rounded-t-xl" style="height: {{ $data['height'] }}%">
-                        </div>
-                        <!-- Tooltip -->
-                        <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[9px] font-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
-                            Rp {{ number_format($data['value'], 0, ',', '.') }}
-                        </div>
-                    </div>
-                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-tighter rotate-[-45deg] origin-top-left translate-y-2">{{ $data['label'] }}</span>
-                </div>
-                @endforeach
-            </div>
+    <div class="flex items-center justify-between mb-12">
+        <h3 class="text-xl font-extrabold text-slate-800 tracking-tight">Tren Penjualan</h3>
+        <span class="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase">
+            <span class="w-3 h-3 bg-[#E97D5A] rounded-full"></span> Pendapatan
+        </span>
+    </div>
+
+    <div class="relative h-72 w-full">
+        <div class="absolute inset-0 flex flex-col justify-between z-0">
+            @foreach(range(0, 4) as $line)
+                <div class="w-full border-t border-slate-50"></div>
+            @endforeach
         </div>
+
+        <div class="relative h-56 w-full z-10">
+            <svg viewBox="0 0 1000 100" class="w-full h-full overflow-visible" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="reportGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#E97D5A;stop-opacity:0.2" />
+                        <stop offset="100%" style="stop-color:#E97D5A;stop-opacity:0" />
+                    </linearGradient>
+                </defs>
+
+                <path d="M 0,100 {{ $this->chartData['points'] }} L 1000,100 Z" fill="url(#reportGrad)" />
+
+                <polyline fill="none" stroke="#E97D5A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+                    vector-effect="non-scaling-stroke" points="{{ $this->chartData['points'] }}" />
+            </svg>
+
+            @foreach($this->chartData['items'] as $item)
+            <div class="absolute group" style="left: {{ $item['x_pos'] }}%; bottom: {{ $item['y_pos'] }}%; transform: translate(-50%, 50%);">
+                <div class="w-2.5 h-2.5 rounded-full bg-white border-2 border-[#E97D5A] shadow-sm transition-transform group-hover:scale-150 z-20"></div>
+
+                <div class="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-30">
+                    <div class="bg-slate-900 text-white text-[10px] font-black px-3 py-2 rounded-xl whitespace-nowrap shadow-xl">
+                        <p class="text-slate-400 text-[8px] mb-1 uppercase">{{ $item['label'] }}</p>
+                        Rp {{ number_format($item['value'], 0, ',', '.') }}
+                    </div>
+                    <div class="w-2 h-2 bg-slate-900 rotate-45 mx-auto -mt-1"></div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+
+        <div class="absolute bottom-0 left-0 w-full flex justify-between px-2">
+            @php 
+                // Hanya tampilkan beberapa label jika data terlalu banyak agar tidak overlap
+                $step = count($this->chartData['items']) > 10 ? ceil(count($this->chartData['items']) / 10) : 1;
+            @endphp
+            @foreach($this->chartData['items'] as $idx => $item)
+                @if($idx % $step == 0)
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">
+                        {{ $item['label'] }}
+                    </span>
+                @else
+                    <span></span>
+                @endif
+            @endforeach
+        </div>
+    </div>
+</div>
 
         <!-- Top Products -->
         <div class="lg:col-span-4 bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
