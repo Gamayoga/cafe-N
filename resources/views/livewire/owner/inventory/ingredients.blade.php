@@ -2,7 +2,8 @@
 
 use App\Models\Ingredient;
 use App\Models\Supplier;
-use function Livewire\Volt\{state, layout, rules, computed};
+use App\Services\ExpiredIngredientService;
+use function Livewire\Volt\{state, layout, rules, computed, mount};
 
 layout('layouts.owner');
 
@@ -14,9 +15,11 @@ state([
     'min_stock' => 0,
     'cost_per_unit' => 0,
     'supplier_id' => '',
+    'expiry_date' => '',
     'editingIngredientId' => null,
     'showForm' => false,
-    'change_reason' => 'Update Stok Manual', // Added reason
+    'change_reason' => 'Update Stok Manual',
+    'autoExpiredCount' => 0,
 ]);
 
 rules([
@@ -26,7 +29,12 @@ rules([
     'min_stock' => 'required|numeric|min:0',
     'cost_per_unit' => 'required|numeric|min:0',
     'supplier_id' => 'nullable|exists:suppliers,id',
+    'expiry_date' => 'nullable|date',
 ]);
+
+mount(function () {
+    $this->autoExpiredCount = ExpiredIngredientService::processExpired(auth()->id());
+});
 
 $ingredients = computed(fn () =>
     Ingredient::with('supplier')
@@ -47,14 +55,21 @@ $save = function () {
         'min_stock' => $this->min_stock,
         'cost_per_unit' => $this->cost_per_unit,
         'supplier_id' => $this->supplier_id ?: null,
+        'expiry_date' => $this->expiry_date ?: null,
     ];
 
     if ($this->editingIngredientId) {
         $ingredient = Ingredient::find($this->editingIngredientId);
         $oldStock = $ingredient->stock_qty;
+        $oldExpiry = $ingredient->expiry_date?->toDateString();
+
+        // Reset expired_processed_at jika tanggal kadaluarsa diubah ke depan
+        if ($this->expiry_date && $this->expiry_date !== $oldExpiry) {
+            $data['expired_processed_at'] = null;
+        }
+
         $ingredient->update($data);
 
-        // Log if stock changed
         if ($oldStock != $this->stock_qty) {
             App\Models\StockLog::create([
                 'ingredient_id' => $ingredient->id,
@@ -66,19 +81,18 @@ $save = function () {
         }
     } else {
         $ingredient = Ingredient::create($data);
-        // Log initial stock
         if ($this->stock_qty > 0) {
             App\Models\StockLog::create([
                 'ingredient_id' => $ingredient->id,
                 'type' => 'in',
                 'qty' => $this->stock_qty,
                 'recorded_by' => auth()->id(),
-                'reason' => 'Stok Awal / Input Baru',
+                'reason' => 'Stok Awal / Input Baru' . ($this->expiry_date ? ' (Kadaluarsa: ' . \Carbon\Carbon::parse($this->expiry_date)->format('d M Y') . ')' : ''),
             ]);
         }
     }
 
-    $this->reset('name', 'unit', 'stock_qty', 'min_stock', 'cost_per_unit', 'supplier_id', 'editingIngredientId', 'showForm', 'change_reason');
+    $this->reset('name', 'unit', 'stock_qty', 'min_stock', 'cost_per_unit', 'supplier_id', 'expiry_date', 'editingIngredientId', 'showForm', 'change_reason');
     $this->unit = 'Kg';
     $this->change_reason = 'Update Stok Manual';
 };
@@ -92,6 +106,7 @@ $edit = function ($id) {
     $this->min_stock = $i->min_stock;
     $this->cost_per_unit = $i->cost_per_unit;
     $this->supplier_id = $i->supplier_id;
+    $this->expiry_date = $i->expiry_date?->toDateString();
     $this->showForm = true;
 };
 
@@ -99,8 +114,30 @@ $delete = function ($id) {
     Ingredient::find($id)->delete();
 };
 
+$markExpired = function ($id) {
+    $ingredient = Ingredient::find($id);
+    if (!$ingredient || $ingredient->stock_qty <= 0) {
+        return;
+    }
+
+    $qty = $ingredient->stock_qty;
+
+    App\Models\StockLog::create([
+        'ingredient_id' => $ingredient->id,
+        'type' => 'waste',
+        'qty' => $qty,
+        'recorded_by' => auth()->id(),
+        'reason' => 'Basi / Kadaluarsa (Ditandai Manual oleh ' . auth()->user()->name . ')',
+    ]);
+
+    $ingredient->update([
+        'stock_qty' => 0,
+        'expired_processed_at' => now(),
+    ]);
+};
+
 $cancel = function () {
-    $this->reset('name', 'unit', 'stock_qty', 'min_stock', 'cost_per_unit', 'supplier_id', 'editingIngredientId', 'showForm');
+    $this->reset('name', 'unit', 'stock_qty', 'min_stock', 'cost_per_unit', 'supplier_id', 'expiry_date', 'editingIngredientId', 'showForm');
     $this->unit = 'Kg';
 };
 
@@ -119,6 +156,13 @@ $cancel = function () {
             {{ $showForm ? 'Tutup Form' : 'Tambah Bahan Baku' }}
         </button>
     </div>
+
+    @if($autoExpiredCount > 0)
+    <div class="bg-rose-50 border border-rose-100 text-rose-700 rounded-2xl px-6 py-4 flex items-center gap-3">
+        <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <span class="font-bold text-sm">{{ $autoExpiredCount }} bahan baku terdeteksi kadaluarsa dan otomatis dikurangi dari stok. Cek <a href="{{ route('owner.inventory.history') }}" class="underline">Riwayat Stok</a>.</span>
+    </div>
+    @endif
 
     @if($showForm)
     <!-- Form Panel -->
@@ -188,6 +232,15 @@ $cancel = function () {
                     </select>
                 </div>
 
+                <!-- Tanggal Kadaluarsa -->
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Tanggal Kadaluarsa (Opsional)</label>
+                    <input wire:model="expiry_date" type="date"
+                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                    @error('expiry_date') <span class="text-rose-500 text-xs font-bold mt-1 ml-1">{{ $message }}</span> @enderror
+                    <p class="text-[10px] font-bold text-slate-400 mt-2 ml-1">Stok akan otomatis dikurangi & dicatat di Riwayat saat tanggal terlewat.</p>
+                </div>
+
                 <!-- Reason for update -->
                 <div class="md:col-span-3">
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Alasan Perubahan Stok (Opsional)</label>
@@ -227,6 +280,7 @@ $cancel = function () {
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Stok</th>
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Min. Stok</th>
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Harga/Unit</th>
+                        <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Kadaluarsa</th>
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Supplier</th>
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Aksi</th>
@@ -240,6 +294,19 @@ $cancel = function () {
                             'Habis'   => 'text-rose-600 bg-rose-50',
                             'Menipis' => 'text-amber-600 bg-amber-50',
                             default   => 'text-emerald-600 bg-emerald-50',
+                        };
+                        $expiryStatus = $i->expiry_status;
+                        $expiryStyle = match($expiryStatus) {
+                            'expired' => 'text-rose-600 bg-rose-50',
+                            'soon'    => 'text-amber-600 bg-amber-50',
+                            'fresh'   => 'text-emerald-600 bg-emerald-50',
+                            default   => 'text-slate-400 bg-slate-50',
+                        };
+                        $expiryLabel = match($expiryStatus) {
+                            'expired' => 'Kadaluarsa',
+                            'soon'    => 'Hampir Kadaluarsa',
+                            'fresh'   => 'Aman',
+                            default   => '—',
                         };
                     @endphp
                     <tr class="hover:bg-slate-50/50 transition-colors group">
@@ -262,6 +329,14 @@ $cancel = function () {
                             <span class="font-bold text-slate-600 tabular-nums">Rp {{ number_format($i->cost_per_unit, 0, ',', '.') }}</span>
                         </td>
                         <td class="px-8 py-6">
+                            @if($i->expiry_date)
+                                <p class="text-sm font-black text-slate-700 leading-none mb-1">{{ $i->expiry_date->format('d M Y') }}</p>
+                                <span class="px-2 py-0.5 {{ $expiryStyle }} rounded-lg text-[9px] font-black uppercase tracking-wider inline-block mt-1">{{ $expiryLabel }}</span>
+                            @else
+                                <span class="text-sm font-bold text-slate-300 italic">—</span>
+                            @endif
+                        </td>
+                        <td class="px-8 py-6">
                             @if($i->supplier)
                                 <span class="text-sm font-bold text-slate-500">{{ $i->supplier->name }}</span>
                             @else
@@ -273,10 +348,18 @@ $cancel = function () {
                         </td>
                         <td class="px-8 py-6">
                             <div class="flex items-center justify-end gap-2">
-                                <button wire:click="edit({{ $i->id }})" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all">
+                                @if($i->stock_qty > 0)
+                                <button wire:confirm="Tandai bahan baku ini sebagai basi/kadaluarsa? Stok akan dikurangi ke 0 dan dicatat di Riwayat Stok."
+                                        wire:click="markExpired({{ $i->id }})"
+                                        title="Tandai Basi/Kadaluarsa"
+                                        class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center hover:bg-amber-600 hover:text-white transition-all">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                </button>
+                                @endif
+                                <button wire:click="edit({{ $i->id }})" title="Edit" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                 </button>
-                                <button wire:confirm="Hapus bahan baku ini?" wire:click="delete({{ $i->id }})" class="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all">
+                                <button wire:confirm="Hapus bahan baku ini?" wire:click="delete({{ $i->id }})" title="Hapus" class="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                 </button>
                             </div>
@@ -284,7 +367,7 @@ $cancel = function () {
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="px-8 py-20 text-center">
+                        <td colspan="8" class="px-8 py-20 text-center">
                             <div class="flex flex-col items-center justify-center">
                                 <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mb-4 border border-slate-100">
                                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"></path></svg>

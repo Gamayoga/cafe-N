@@ -1,7 +1,8 @@
 <?php
 
 use App\Models\StockLog;
-use function Livewire\Volt\{state, layout, computed};
+use App\Services\ExpiredIngredientService;
+use function Livewire\Volt\{state, layout, computed, mount};
 
 layout('layouts.owner');
 
@@ -9,6 +10,10 @@ state([
     'search' => '',
     'type' => '',
 ]);
+
+mount(function () {
+    ExpiredIngredientService::processExpired(auth()->id());
+});
 
 $logs = computed(fn () =>
     StockLog::with(['ingredient', 'recorder'])
@@ -48,7 +53,7 @@ $logs = computed(fn () =>
                 <option value="">Semua Tipe</option>
                 <option value="in">Barang Masuk</option>
                 <option value="out">Barang Keluar</option>
-                <option value="waste">Sampah / Rusak</option>
+                <option value="waste">Basi / Kadaluarsa</option>
             </select>
         </div>
     </div>
@@ -88,14 +93,21 @@ $logs = computed(fn () =>
                                 $typeLabel = match($log->type) {
                                     'in'    => 'Masuk',
                                     'out'   => 'Keluar',
-                                    'waste' => 'Sampah',
+                                    'waste' => 'Kadaluarsa',
                                     default => $log->type,
                                 };
                             @endphp
                             <span class="px-3 py-1.5 {{ $typeStyle }} rounded-xl text-[10px] font-black uppercase tracking-wider">{{ $typeLabel }}</span>
                         </td>
                         <td class="px-8 py-6 text-right">
-                            <span class="text-lg font-black {{ $log->type === 'in' ? 'text-emerald-600' : 'text-rose-600' }} tabular-nums">
+                            @php
+                                $qtyColor = match($log->type) {
+                                    'in'    => 'text-emerald-600',
+                                    'waste' => 'text-rose-600',
+                                    default => 'text-indigo-600',
+                                };
+                            @endphp
+                            <span class="text-lg font-black {{ $qtyColor }} tabular-nums">
                                 {{ $log->type === 'in' ? '+' : '-' }}{{ number_format($log->qty, 2) }}
                             </span>
                             <span class="text-[10px] font-bold text-slate-400 uppercase ml-1">{{ $log->ingredient->unit ?? '' }}</span>
