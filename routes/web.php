@@ -44,6 +44,8 @@ Route::middleware(['auth', 'role:owner'])->prefix('owner')->group(function () {
     Livewire\Volt\Volt::route('employees', 'owner.employees')->name('owner.employees');
     Livewire\Volt\Volt::route('attendance', 'owner.attendance')->name('owner.attendance');
     Livewire\Volt\Volt::route('reports', 'owner.reports')->name('owner.reports');
+    Route::get('reports/export/pdf', [\App\Http\Controllers\ReportExportController::class, 'exportPdf'])->name('owner.reports.export.pdf');
+    Route::get('reports/export/excel', [\App\Http\Controllers\ReportExportController::class, 'exportExcel'])->name('owner.reports.export.excel');
 });
 
 

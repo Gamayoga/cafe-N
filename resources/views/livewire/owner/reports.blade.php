@@ -37,55 +37,85 @@ $stats = computed(function () {
 
 $chartData = computed(function () {
     $start = Carbon::parse($this->startDate)->startOfDay();
-    $end = Carbon::parse($this->endDate)->endOfDay();
-    
-    $daysCount = $start->diffInDays($end) + 1;
-    
-    // Interval agar titik tidak terlalu rapat jika rentang waktu lama
-    $interval = $daysCount > 31 ? ceil($daysCount / 20) : 1; 
+    $end   = Carbon::parse($this->endDate)->endOfDay();
 
-    $data = [];
+    $daysCount = $start->diffInDays($end) + 1;
+    $interval  = $daysCount > 60 ? (int)ceil($daysCount / 30) : 1;
+
     $raw = Transaction::whereBetween('created_at', [$start, $end])
         ->orderBy('created_at')
         ->get()
         ->groupBy(fn ($t) => $t->created_at->format('Y-m-d'));
 
-    $points = "";
-    $width = 1000; // Lebar virtual SVG
-    $height = 100; // Tinggi virtual SVG
-
     $items = [];
     for ($i = 0; $i < $daysCount; $i += $interval) {
-        $date = $start->copy()->addDays($i);
+        $date    = $start->copy()->addDays($i);
         $dateStr = $date->format('Y-m-d');
-        $dayRevenue = $raw->has($dateStr) ? $raw->get($dateStr)->sum('total_amount') : 0;
-        
         $items[] = [
-            'label' => $date->format('d M'),
-            'value' => (float)$dayRevenue,
+            'label'     => $date->format('d'),
+            'month'     => $date->format('M'),
+            'full_date' => $date->format('d M Y'),
+            'value'     => (float)($raw->has($dateStr) ? $raw->get($dateStr)->sum('total_amount') : 0),
+            'height'    => 0,
+            'x_pct'     => 0,
+            'y_pct'     => 0,
         ];
     }
 
-    $max = collect($items)->max('value') ?: 1;
     $count = count($items);
+    $max   = collect($items)->max('value') ?: 1;
 
-    foreach ($items as $idx => $item) {
-        // Hitung posisi X (0 sampai 1000)
-        $x = ($count > 1) ? ($idx * ($width / ($count - 1))) : 0;
-        // Hitung posisi Y (Tinggi dikurangi persentase nilai)
-        $y = $height - (($item['value'] / $max) * 80 + 10); 
-        
-        $points .= "$x,$y ";
-        
-        // Simpan posisi untuk Dot HTML
-        $items[$idx]['x_pos'] = ($count > 1) ? ($idx / ($count - 1)) * 100 : 0;
-        $items[$idx]['y_pos'] = (($height - $y) / $height) * 100; // Persentase dari bawah
+    // Nice rounded max for Y-axis
+    $magnitude = pow(10, floor(log10(max($max, 1))));
+    $niceMax   = ceil($max / $magnitude) * $magnitude ?: 100000;
+
+    // Y ticks: 5 levels, rendered top→bottom
+    $yTicks = [];
+    for ($i = 4; $i >= 0; $i--) {
+        $val  = ($niceMax / 4) * $i;
+        $pct  = ($val / $niceMax) * 100;
+        $svgY = 100 - ($pct * 0.8 + 10);
+        $yTicks[] = [
+            'value' => $val,
+            'svgY'  => $svgY,
+            'label' => $val >= 1000000
+                ? number_format($val / 1000000, 1, ',', '.') . 'jt'
+                : ($val >= 1000 ? number_format($val / 1000, 0) . 'rb' : number_format($val, 0)),
+        ];
     }
 
-    return [
-        'items' => $items,
-        'points' => trim($points)
-    ];
+    // SVG points & per-item coords
+    $labelInterval = $count > 15 ? (int)ceil($count / 15) : 1;
+    $points = '';
+    foreach ($items as $idx => &$d) {
+        $pct         = ($d['value'] / $niceMax) * 100;
+        $d['height'] = $pct;
+        $x           = $count > 1 ? ($idx / ($count - 1)) * 700 : 350;
+        $y           = 100 - ($pct * 0.8 + 10);
+        $points     .= "$x,$y ";
+        $d['x_pct']      = $count > 1 ? ($idx / ($count - 1)) * 100 : 50;
+        $d['y_pct']      = $y;
+        $d['show_label'] = ($idx % $labelInterval === 0) || ($idx === $count - 1);
+    }
+
+    // Month groups for x-axis separator
+    $months    = [];
+    $prevMonth = null;
+    $mStart    = 0;
+    foreach ($items as $idx => $d) {
+        if ($d['month'] !== $prevMonth) {
+            if ($prevMonth !== null) {
+                $months[] = ['label' => $prevMonth, 'count' => $idx - $mStart];
+            }
+            $prevMonth = $d['month'];
+            $mStart    = $idx;
+        }
+    }
+    if ($prevMonth !== null) {
+        $months[] = ['label' => $prevMonth, 'count' => $count - $mStart];
+    }
+
+    return compact('items', 'points', 'niceMax', 'yTicks', 'months', 'count');
 });
 
 $topProducts = computed(function () {
@@ -177,69 +207,86 @@ $detailedTransactions = computed(function () {
 
     <!-- Charts Row -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <!-- Sales Trend -->
+        <!-- Sales Trend - Line Chart -->
         <div class="lg:col-span-8 bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
-    <div class="flex items-center justify-between mb-12">
-        <h3 class="text-xl font-extrabold text-slate-800 tracking-tight">Tren Penjualan</h3>
-        <span class="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase">
-            <span class="w-3 h-3 bg-[#E97D5A] rounded-full"></span> Pendapatan
-        </span>
-    </div>
+            <div class="flex items-center justify-between mb-8">
+                <h3 class="text-xl font-extrabold text-slate-800 tracking-tight">Tren Penjualan</h3>
+                <span class="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase">
+                    <span class="w-3 h-3 bg-[#E97D5A] rounded-full"></span> Pendapatan
+                </span>
+            </div>
 
-    <div class="relative h-72 w-full">
-        <div class="absolute inset-0 flex flex-col justify-between z-0">
-            @foreach(range(0, 4) as $line)
-                <div class="w-full border-t border-slate-50"></div>
-            @endforeach
-        </div>
+            <div class="flex gap-3">
+                {{-- Y-axis labels --}}
+                <div class="relative shrink-0 h-48" style="width:52px">
+                    @foreach($this->chartData['yTicks'] as $tick)
+                    <span class="absolute right-0 text-[9px] font-black text-slate-400 leading-none -translate-y-1/2 text-right"
+                          style="top:{{ $tick['svgY'] }}%">{{ $tick['label'] }}</span>
+                    @endforeach
+                </div>
 
-        <div class="relative h-56 w-full z-10">
-            <svg viewBox="0 0 1000 100" class="w-full h-full overflow-visible" preserveAspectRatio="none">
-                <defs>
-                    <linearGradient id="reportGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" style="stop-color:#E97D5A;stop-opacity:0.2" />
-                        <stop offset="100%" style="stop-color:#E97D5A;stop-opacity:0" />
-                    </linearGradient>
-                </defs>
+                {{-- Chart + X-axis --}}
+                <div class="flex-1 min-w-0">
+                    {{-- SVG area --}}
+                    <div class="relative h-48 w-full">
+                        {{-- Grid lines --}}
+                        @foreach($this->chartData['yTicks'] as $tick)
+                        <div class="absolute w-full border-t border-dashed border-slate-100 pointer-events-none"
+                             style="top:{{ $tick['svgY'] }}%"></div>
+                        @endforeach
 
-                <path d="M 0,100 {{ $this->chartData['points'] }} L 1000,100 Z" fill="url(#reportGrad)" />
+                        {{-- SVG line + fill --}}
+                        <svg viewBox="0 0 700 100" class="w-full h-full overflow-visible" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="grad-rpt" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#E97D5A;stop-opacity:0.22"/>
+                                    <stop offset="100%" style="stop-color:#E97D5A;stop-opacity:0"/>
+                                </linearGradient>
+                            </defs>
+                            @if($this->chartData['count'] > 1)
+                            <polyline fill="url(#grad-rpt)" stroke="none"
+                                points="0,100 {{ $this->chartData['points'] }} 700,100"/>
+                            <polyline fill="none" stroke="#E97D5A" stroke-width="2.5"
+                                stroke-linecap="round" stroke-linejoin="round"
+                                vector-effect="non-scaling-stroke"
+                                points="{{ $this->chartData['points'] }}"/>
+                            @endif
+                        </svg>
 
-                <polyline fill="none" stroke="#E97D5A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
-                    vector-effect="non-scaling-stroke" points="{{ $this->chartData['points'] }}" />
-            </svg>
-
-            @foreach($this->chartData['items'] as $item)
-            <div class="absolute group" style="left: {{ $item['x_pos'] }}%; bottom: {{ $item['y_pos'] }}%; transform: translate(-50%, 50%);">
-                <div class="w-2.5 h-2.5 rounded-full bg-white border-2 border-[#E97D5A] shadow-sm transition-transform group-hover:scale-150 z-20"></div>
-
-                <div class="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-30">
-                    <div class="bg-slate-900 text-white text-[10px] font-black px-3 py-2 rounded-xl whitespace-nowrap shadow-xl">
-                        <p class="text-slate-400 text-[8px] mb-1 uppercase">{{ $item['label'] }}</p>
-                        Rp {{ number_format($item['value'], 0, ',', '.') }}
+                        {{-- Dots & tooltips --}}
+                        @foreach($this->chartData['items'] as $d)
+                        <div class="absolute group cursor-pointer"
+                             style="left:{{ $d['x_pct'] }}%;top:{{ $d['y_pct'] }}%;transform:translate(-50%,-50%);z-index:20">
+                            <div class="w-2.5 h-2.5 rounded-full bg-white border-2 border-[#E97D5A]"></div>
+                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-slate-900 text-white text-[10px] font-black px-3 py-2 rounded-2xl opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap z-30 shadow-xl scale-90 group-hover:scale-100 pointer-events-none">
+                                <p class="text-[9px] text-slate-400 mb-0.5">{{ $d['full_date'] }}</p>
+                                Rp {{ number_format($d['value'], 0, ',', '.') }}
+                            </div>
+                        </div>
+                        @endforeach
                     </div>
-                    <div class="w-2 h-2 bg-slate-900 rotate-45 mx-auto -mt-1"></div>
+
+                    {{-- X-axis: tanggal --}}
+                    <div class="relative h-5 mt-2">
+                        @foreach($this->chartData['items'] as $d)
+                        @if($d['show_label'])
+                        <span class="absolute text-[9px] font-black text-slate-400 -translate-x-1/2"
+                              style="left:{{ $d['x_pct'] }}%">{{ $d['label'] }}</span>
+                        @endif
+                        @endforeach
+                    </div>
+
+                    {{-- X-axis: bulan --}}
+                    <div class="flex border-t border-slate-100 pt-1.5 mt-0.5">
+                        @foreach($this->chartData['months'] as $month)
+                        <div class="overflow-hidden min-w-0" style="flex:{{ $month['count'] }}">
+                            <span class="text-[9px] font-black text-[#E97D5A] uppercase tracking-widest">{{ $month['label'] }}</span>
+                        </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
-            @endforeach
         </div>
-
-        <div class="absolute bottom-0 left-0 w-full flex justify-between px-2">
-            @php 
-                // Hanya tampilkan beberapa label jika data terlalu banyak agar tidak overlap
-                $step = count($this->chartData['items']) > 10 ? ceil(count($this->chartData['items']) / 10) : 1;
-            @endphp
-            @foreach($this->chartData['items'] as $idx => $item)
-                @if($idx % $step == 0)
-                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">
-                        {{ $item['label'] }}
-                    </span>
-                @else
-                    <span></span>
-                @endif
-            @endforeach
-        </div>
-    </div>
-</div>
 
         <!-- Top Products -->
         <div class="lg:col-span-4 bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
@@ -268,10 +315,18 @@ $detailedTransactions = computed(function () {
     <div id="transaksi-section" class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden print:border-0 print:shadow-none">
         <div class="p-10 border-b border-slate-50 flex items-center justify-between print:pt-4">
             <h3 class="text-xl font-black text-slate-800 tracking-tight">Detail Transaksi Terakhir</h3>
-            <button onclick="window.print()" class="px-6 py-3 bg-[#1A1A1A] text-white rounded-2xl font-black text-xs hover:scale-105 transition-all print:hidden flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                Export Laporan (PDF)
-            </button>
+            <div class="flex items-center gap-3 print:hidden">
+                <a x-bind:href="`/owner/reports/export/pdf?startDate={{ $startDate }}&endDate={{ $endDate }}`"
+                   class="px-6 py-3 bg-[#1A1A1A] text-white rounded-2xl font-black text-xs hover:scale-105 transition-all flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    Export PDF
+                </a>
+                <a x-bind:href="`/owner/reports/export/excel?startDate={{ $startDate }}&endDate={{ $endDate }}`"
+                   class="px-6 py-3 bg-emerald-600 text-white rounded-2xl font-black text-xs hover:scale-105 transition-all flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Export Excel
+                </a>
+            </div>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left">
