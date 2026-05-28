@@ -21,12 +21,12 @@
             background-color: #F8F9FB;
         }
         .sidebar {
-            background-color: #111111;
+            background-color: #0A2A2F;
         }
         .sidebar-item-active {
-            background-color: #E97D5A;
+            background-color: #14B8A6;
             color: white;
-            box-shadow: 0 10px 20px -3px rgba(233, 125, 90, 0.4);
+            box-shadow: 0 10px 20px -3px rgba(20, 184, 166, 0.4);
         }
         [x-cloak] { display: none !important; }
     </style>
@@ -49,15 +49,12 @@
                class="fixed lg:sticky top-0 left-0 w-72 sidebar flex flex-col h-screen z-[50] transition-transform duration-300 ease-in-out print:hidden">
             
             <!-- Sidebar Header -->
-            <div class="p-8 mb-6 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-[#E97D5A] rounded-xl flex items-center justify-center shadow-lg shadow-orange-900/50">
-                        <svg class="text-white w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                    </div>
-                    <span class="text-2xl font-extrabold text-white tracking-tighter">Northern<span class="text-[#E97D5A]">.</span></span>
-                </div>
+            <div class="relative px-6 pt-6 pb-4 mb-2 flex items-center justify-center">
+                <a href="{{ route('owner.dashboard') }}" class="flex items-center">
+                    <img src="{{ asset('images/logo.png') }}" alt="Northern Coffe & Burger" class="h-20 w-auto object-contain">
+                </a>
                 <!-- Close Button (Mobile) -->
-                <button @click="mobileMenu = false" class="lg:hidden text-gray-400 hover:text-white">
+                <button @click="mobileMenu = false" class="lg:hidden absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
@@ -107,7 +104,7 @@
                 <div class="bg-gray-800/40 rounded-3xl flex items-stretch overflow-hidden">
                     <!-- Account Info (Left) -->
                     <div class="flex-1 px-4 py-4 flex items-center justify-start gap-2 min-w-0">
-                        <div class="w-7 h-7 bg-[#E97D5A] rounded-lg flex items-center justify-center text-white font-bold text-[10px] shrink-0">
+                        <div class="w-7 h-7 bg-[#14B8A6] rounded-lg flex items-center justify-center text-white font-bold text-[10px] shrink-0">
                             {{ substr(auth()->user()->name, 0, 1) }}{{ substr(strrchr(auth()->user()->name, " "), 1, 1) ?: '' }}
                         </div>
                         <div class="flex flex-col min-w-0">

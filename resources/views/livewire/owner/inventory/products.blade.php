@@ -146,7 +146,7 @@ $cancel = function () {
             <p class="text-slate-400 font-bold mt-1 uppercase text-[10px] tracking-[0.2em]">Inventori / Produk Menu</p>
         </div>
         <button wire:click="$toggle('showForm')"
-                class="px-6 py-3 bg-[#E97D5A] text-white rounded-2xl font-black text-sm shadow-lg shadow-orange-100/50 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                class="px-6 py-3 bg-[#14B8A6] text-white rounded-2xl font-black text-sm shadow-lg shadow-teal-100/50 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
             {{ $showForm ? 'Tutup Form' : 'Tambah Produk Baru' }}
         </button>
@@ -154,7 +154,7 @@ $cancel = function () {
 
     @if($showForm)
     <!-- Form Panel -->
-    <div class="bg-white rounded-[2.5rem] p-10 shadow-xl border border-orange-50">
+    <div class="bg-white rounded-[2.5rem] p-10 shadow-xl border border-teal-50">
         <h2 class="text-2xl font-black text-slate-800 mb-8">
             {{ $editingProductId ? 'Ubah Produk Menu' : 'Daftarkan Produk Baru' }}
         </h2>
@@ -191,7 +191,7 @@ $cancel = function () {
                             </button>
                         @endif
                         <p class="text-[11px] text-slate-400 font-bold mt-3">Format: JPG/PNG. Maksimal 2MB.</p>
-                        <div wire:loading wire:target="image" class="text-[11px] text-[#E97D5A] font-black mt-1 uppercase tracking-widest">Mengunggah...</div>
+                        <div wire:loading wire:target="image" class="text-[11px] text-[#14B8A6] font-black mt-1 uppercase tracking-widest">Mengunggah...</div>
                         @error('image') <span class="text-rose-500 text-xs font-bold mt-1 ml-1 block">{{ $message }}</span> @enderror
                     </div>
                 </div>
@@ -202,14 +202,14 @@ $cancel = function () {
                 <div class="md:col-span-2">
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Nama Produk</label>
                     <input wire:model="name" type="text" placeholder="Contoh: Kopi Susu Gula Aren"
-                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all">
                     @error('name') <span class="text-rose-500 text-xs font-bold mt-1 ml-1">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Kategori</label>
                     <select wire:model="category"
-                            class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all appearance-none">
+                            class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all appearance-none">
                         @foreach(['Coffee', 'Non-Coffee', 'Tea', 'Snack', 'Meal', 'Dessert', 'Other'] as $cat)
                             <option value="{{ $cat }}">{{ $cat }}</option>
                         @endforeach
@@ -219,7 +219,7 @@ $cancel = function () {
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Harga Jual (Rp)</label>
                     <input wire:model="price" type="number" min="0" step="500" placeholder="25000"
-                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all">
                     @error('price') <span class="text-rose-500 text-xs font-bold mt-1 ml-1">{{ $message }}</span> @enderror
                 </div>
 
@@ -252,7 +252,7 @@ $cancel = function () {
                 @if(count($recipeRows) === 0)
                 <div class="text-center py-10 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-100">
                     <p class="text-slate-400 font-bold italic text-sm">Belum ada resep bahan baku.</p>
-                    <button type="button" wire:click="addRecipeRow" class="mt-2 text-[#E97D5A] font-black text-xs uppercase tracking-widest">+ Klik untuk tambah bahan</button>
+                    <button type="button" wire:click="addRecipeRow" class="mt-2 text-[#14B8A6] font-black text-xs uppercase tracking-widest">+ Klik untuk tambah bahan</button>
                 </div>
                 @else
                 <div class="space-y-3">
@@ -260,7 +260,7 @@ $cancel = function () {
                     <div class="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl">
                         <div class="flex-1">
                             <select wire:model="recipeRows.{{ $idx }}.ingredient_id"
-                                    class="w-full px-4 py-3 bg-white border-0 rounded-xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all appearance-none text-sm">
+                                    class="w-full px-4 py-3 bg-white border-0 rounded-xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all appearance-none text-sm">
                                 <option value="">— Pilih Bahan —</option>
                                 @foreach($this->ingredients as $ing)
                                     <option value="{{ $ing->id }}">{{ $ing->name }} ({{ $ing->unit }})</option>
@@ -271,7 +271,7 @@ $cancel = function () {
                         <div class="w-40">
                             <div class="relative">
                                 <input wire:model="recipeRows.{{ $idx }}.qty_used" type="number" step="0.01" min="0" placeholder="Jumlah"
-                                       class="w-full pl-4 pr-4 py-3 bg-white border-0 rounded-xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all text-sm">
+                                       class="w-full pl-4 pr-4 py-3 bg-white border-0 rounded-xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all text-sm">
                             </div>
                             @error("recipeRows.{$idx}.qty_used") <span class="text-rose-500 text-[10px] font-bold mt-1 ml-1">{{ $message }}</span> @enderror
                         </div>
@@ -304,7 +304,7 @@ $cancel = function () {
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </span>
                 <input wire:model.live="search" type="text" placeholder="Cari nama produk..."
-                       class="pl-12 pr-6 py-3 bg-slate-50 border-0 rounded-2xl w-full md:w-72 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                       class="pl-12 pr-6 py-3 bg-slate-50 border-0 rounded-2xl w-full md:w-72 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#14B8A6] transition-all">
             </div>
         </div>
 
@@ -328,7 +328,7 @@ $cancel = function () {
                             'Non-Coffee' => 'text-indigo-700 bg-indigo-50',
                             'Tea' => 'text-emerald-700 bg-emerald-50',
                             'Snack' => 'text-rose-700 bg-rose-50',
-                            'Meal' => 'text-orange-700 bg-orange-50',
+                            'Meal' => 'text-teal-700 bg-teal-50',
                             'Dessert' => 'text-pink-700 bg-pink-50',
                         ];
                         $catStyle = $catColors[$p->category] ?? 'text-slate-700 bg-slate-50';
@@ -340,7 +340,7 @@ $cancel = function () {
                                     <img src="{{ Storage::url($p->image_url) }}" alt="{{ $p->name }}"
                                          class="w-11 h-11 rounded-2xl object-cover border border-slate-100">
                                 @else
-                                    <div class="w-11 h-11 bg-[#111111] rounded-2xl flex items-center justify-center text-white font-black text-sm group-hover:bg-[#E97D5A] transition-colors">
+                                    <div class="w-11 h-11 bg-[#0A2A2F] rounded-2xl flex items-center justify-center text-white font-black text-sm group-hover:bg-[#14B8A6] transition-colors">
                                         {{ substr($p->name, 0, 1) }}
                                     </div>
                                 @endif
@@ -382,7 +382,7 @@ $cancel = function () {
                                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                                 </div>
                                 <p class="text-slate-400 font-bold italic mb-4">Belum ada produk menu tercatat.</p>
-                                <button wire:click="$set('showForm', true)" class="text-sm font-black text-[#E97D5A] uppercase tracking-widest border-b-2 border-orange-100 hover:border-orange-400 transition-colors">Klik untuk tambah</button>
+                                <button wire:click="$set('showForm', true)" class="text-sm font-black text-[#14B8A6] uppercase tracking-widest border-b-2 border-teal-100 hover:border-teal-400 transition-colors">Klik untuk tambah</button>
                             </div>
                         </td>
                     </tr>

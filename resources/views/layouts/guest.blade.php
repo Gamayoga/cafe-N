@@ -31,7 +31,7 @@
         <div class="flex w-full max-w-[1100px] min-h-[650px] bg-[#1A1A1A] rounded-[2.5rem] overflow-hidden shadow-2xl relative z-10">
 
             <!-- Left Panel: Premium Coffee Image -->
-            <div class="hidden lg:block lg:w-1/2 relative bg-orange-900/20">
+            <div class="hidden lg:block lg:w-1/2 relative bg-teal-900/20">
                 <img src="{{ asset('images/auth-bg.png') }}" alt="Coffee Background" class="absolute inset-0 w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black/10"></div>
             </div>

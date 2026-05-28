@@ -128,7 +128,7 @@ $processAttendance = function () {
     <!-- Left: Content Info -->
     <div class="flex-1 p-6 lg:p-12 flex flex-col justify-between">
         <div class="space-y-2">
-            <h1 class="text-4xl font-extrabold text-[#111111] tracking-tighter">Presensi Kehadiran</h1>
+            <h1 class="text-4xl font-extrabold text-[#0A2A2F] tracking-tighter">Presensi Kehadiran</h1>
             <p class="text-slate-400 font-bold uppercase text-[10px] tracking-[0.2em]">Northern Cafe / Pegawai</p>
         </div>
 
@@ -136,7 +136,7 @@ $processAttendance = function () {
             <!-- Digital Clock View -->
             <div class="bg-white rounded-[2rem] lg:rounded-[3rem] p-8 lg:p-12 shadow-sm border border-slate-100 flex flex-col items-center text-center">
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">{{ now()->translatedFormat('l, d F Y') }}</p>
-                <h2 class="text-5xl lg:text-7xl font-black text-[#111111] tracking-tighter mb-2" id="live-clock">
+                <h2 class="text-5xl lg:text-7xl font-black text-[#0A2A2F] tracking-tighter mb-2" id="live-clock">
                     {{ now()->format('H:i') }}
                 </h2>
                 <div class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-2xl text-[10px] font-black tracking-widest">

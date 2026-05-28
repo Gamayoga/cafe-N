@@ -139,7 +139,7 @@ $summary = computed(function () {
                         <td class="px-8 py-6">
                             <div class="flex items-center gap-4">
                                 <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-white font-black text-sm transition-colors
-                                    {{ $row['status'] === 'Tidak Hadir' ? 'bg-slate-300' : 'bg-[#111111] group-hover:bg-[#E97D5A]' }}">
+                                    {{ $row['status'] === 'Tidak Hadir' ? 'bg-slate-300' : 'bg-[#0A2A2F] group-hover:bg-[#14B8A6]' }}">
                                     {{ strtoupper(substr($row['name'], 0, 1)) }}{{ strtoupper(substr(strrchr($row['name'], ' ') ?: '', 1, 1)) }}
                                 </div>
                                 <span class="font-black text-slate-700">{{ $row['name'] }}</span>

@@ -151,7 +151,7 @@ $cancel = function () {
             <p class="text-slate-400 font-bold mt-1 uppercase text-[10px] tracking-[0.2em]">Inventori / Bahan Baku</p>
         </div>
         <button wire:click="$toggle('showForm')"
-                class="px-6 py-3 bg-[#E97D5A] text-white rounded-2xl font-black text-sm shadow-lg shadow-orange-100/50 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                class="px-6 py-3 bg-[#14B8A6] text-white rounded-2xl font-black text-sm shadow-lg shadow-teal-100/50 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
             {{ $showForm ? 'Tutup Form' : 'Tambah Bahan Baku' }}
         </button>
@@ -166,7 +166,7 @@ $cancel = function () {
 
     @if($showForm)
     <!-- Form Panel -->
-    <div class="bg-white rounded-[2.5rem] p-10 shadow-xl border border-orange-50 relative overflow-hidden">
+    <div class="bg-white rounded-[2.5rem] p-10 shadow-xl border border-teal-50 relative overflow-hidden">
         <div class="absolute top-0 right-0 opacity-5 p-10">
             <svg class="w-40 h-40" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"></path><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
         </div>
@@ -181,7 +181,7 @@ $cancel = function () {
                 <div class="md:col-span-2">
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Nama Bahan</label>
                     <input wire:model="name" type="text" placeholder="Contoh: Biji Kopi Arabika"
-                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all">
                     @error('name') <span class="text-rose-500 text-xs font-bold mt-1 ml-1">{{ $message }}</span> @enderror
                 </div>
 
@@ -189,7 +189,7 @@ $cancel = function () {
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Satuan</label>
                     <select wire:model="unit"
-                            class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all appearance-none">
+                            class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all appearance-none">
                         @foreach(['Kg', 'Gram', 'Liter', 'Ml', 'Pcs', 'Pak', 'Botol', 'Karton'] as $u)
                             <option value="{{ $u }}">{{ $u }}</option>
                         @endforeach
@@ -200,7 +200,7 @@ $cancel = function () {
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Stok Saat Ini</label>
                     <input wire:model="stock_qty" type="number" step="0.01" min="0" placeholder="0"
-                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all">
                     @error('stock_qty') <span class="text-rose-500 text-xs font-bold mt-1 ml-1">{{ $message }}</span> @enderror
                 </div>
 
@@ -208,7 +208,7 @@ $cancel = function () {
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Stok Minimum (Alert)</label>
                     <input wire:model="min_stock" type="number" step="0.01" min="0" placeholder="0"
-                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all">
                     @error('min_stock') <span class="text-rose-500 text-xs font-bold mt-1 ml-1">{{ $message }}</span> @enderror
                 </div>
 
@@ -216,7 +216,7 @@ $cancel = function () {
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Harga per Satuan (Rp)</label>
                     <input wire:model="cost_per_unit" type="number" step="100" min="0" placeholder="0"
-                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all">
                     @error('cost_per_unit') <span class="text-rose-500 text-xs font-bold mt-1 ml-1">{{ $message }}</span> @enderror
                 </div>
 
@@ -224,7 +224,7 @@ $cancel = function () {
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Supplier (Opsional)</label>
                     <select wire:model="supplier_id"
-                            class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all appearance-none">
+                            class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all appearance-none">
                         <option value="">— Pilih Supplier —</option>
                         @foreach($this->suppliers as $s)
                             <option value="{{ $s->id }}">{{ $s->name }}</option>
@@ -236,7 +236,7 @@ $cancel = function () {
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Tanggal Kadaluarsa (Opsional)</label>
                     <input wire:model="expiry_date" type="date"
-                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all">
                     @error('expiry_date') <span class="text-rose-500 text-xs font-bold mt-1 ml-1">{{ $message }}</span> @enderror
                     <p class="text-[10px] font-bold text-slate-400 mt-2 ml-1">Stok akan otomatis dikurangi & dicatat di Riwayat saat tanggal terlewat.</p>
                 </div>
@@ -245,7 +245,7 @@ $cancel = function () {
                 <div class="md:col-span-3">
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Alasan Perubahan Stok (Opsional)</label>
                     <input wire:model="change_reason" type="text" placeholder="Contoh: Barang Masuk (Restock), Rusak, dll"
-                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all">
                 </div>
             </div>
 
@@ -268,7 +268,7 @@ $cancel = function () {
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </span>
                 <input wire:model.live="search" type="text" placeholder="Cari nama bahan..."
-                       class="pl-12 pr-6 py-3 bg-slate-50 border-0 rounded-2xl w-full md:w-72 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                       class="pl-12 pr-6 py-3 bg-slate-50 border-0 rounded-2xl w-full md:w-72 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#14B8A6] transition-all">
             </div>
         </div>
 
@@ -312,7 +312,7 @@ $cancel = function () {
                     <tr class="hover:bg-slate-50/50 transition-colors group">
                         <td class="px-8 py-6">
                             <div class="flex items-center gap-4">
-                                <div class="w-11 h-11 bg-[#111111] rounded-2xl flex items-center justify-center text-white font-black text-sm group-hover:bg-[#E97D5A] transition-colors">
+                                <div class="w-11 h-11 bg-[#0A2A2F] rounded-2xl flex items-center justify-center text-white font-black text-sm group-hover:bg-[#14B8A6] transition-colors">
                                     {{ substr($i->name, 0, 1) }}
                                 </div>
                                 <span class="font-black text-slate-700">{{ $i->name }}</span>
@@ -373,7 +373,7 @@ $cancel = function () {
                                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"></path></svg>
                                 </div>
                                 <p class="text-slate-400 font-bold italic mb-4">Belum ada bahan baku tercatat.</p>
-                                <button wire:click="$set('showForm', true)" class="text-sm font-black text-[#E97D5A] uppercase tracking-widest border-b-2 border-orange-100 hover:border-orange-400 transition-colors">Klik untuk tambah</button>
+                                <button wire:click="$set('showForm', true)" class="text-sm font-black text-[#14B8A6] uppercase tracking-widest border-b-2 border-teal-100 hover:border-teal-400 transition-colors">Klik untuk tambah</button>
                             </div>
                         </td>
                     </tr>

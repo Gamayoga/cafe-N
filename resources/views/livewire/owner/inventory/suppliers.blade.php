@@ -71,7 +71,7 @@ $cancel = function () {
             <h1 class="text-4xl font-extrabold text-slate-900 tracking-tighter">Manajemen Supplier</h1>
             <p class="text-slate-400 font-bold mt-1 uppercase text-[10px] tracking-[0.2em]">Inventori / Supplier</p>
         </div>
-        <button wire:click="$toggle('showForm')" class="px-6 py-3 bg-[#E97D5A] text-white rounded-2xl font-black text-sm shadow-lg shadow-orange-100/50 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+        <button wire:click="$toggle('showForm')" class="px-6 py-3 bg-[#14B8A6] text-white rounded-2xl font-black text-sm shadow-lg shadow-teal-100/50 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
             {{ $showForm ? 'Tutup Form' : 'Tambah Supplier Baru' }}
         </button>
@@ -79,7 +79,7 @@ $cancel = function () {
 
     @if($showForm)
     <!-- Form Area (Floating Style) -->
-    <div class="bg-white rounded-[2.5rem] p-10 shadow-xl border border-orange-50 relative overflow-hidden">
+    <div class="bg-white rounded-[2.5rem] p-10 shadow-xl border border-teal-50 relative overflow-hidden">
         <div class="absolute top-0 right-0 p-10 opacity-5">
             <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"></path></svg>
         </div>
@@ -91,20 +91,20 @@ $cancel = function () {
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Nama Supplier / Perusahaan</label>
                     <input wire:model="name" type="text" placeholder="Contoh: PT. Kopi Nusantara" 
-                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all">
                     @error('name') <span class="text-rose-500 text-xs font-bold mt-1 ml-1">{{ $message }}</span> @enderror
                 </div>
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Kontak (WhatsApp / Email)</label>
                     <input wire:model="contact" type="text" placeholder="0812XXXXXXXX / email@domain.com"
-                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all">
                 </div>
             </div>
             <div class="space-y-6">
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Alamat Kantor / Gudang</label>
                     <textarea wire:model="address" rows="4" placeholder="Masukkan alamat lengkap supplier..."
-                              class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all"></textarea>
+                              class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all"></textarea>
                 </div>
             </div>
             
@@ -127,7 +127,7 @@ $cancel = function () {
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </span>
                 <input wire:model.live="search" type="text" placeholder="Cari nama supplier..." 
-                       class="pl-12 pr-6 py-3 bg-slate-50 border-0 rounded-2xl w-full md:w-80 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                       class="pl-12 pr-6 py-3 bg-slate-50 border-0 rounded-2xl w-full md:w-80 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#14B8A6] transition-all">
             </div>
         </div>
 
@@ -146,7 +146,7 @@ $cancel = function () {
                     <tr class="hover:bg-slate-50/50 transition-colors group">
                         <td class="px-8 py-6">
                             <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-[#E97D5A] font-black shadow-sm group-hover:bg-[#E97D5A] group-hover:text-white transition-all">
+                                <div class="w-12 h-12 bg-teal-50 rounded-2xl flex items-center justify-center text-[#14B8A6] font-black shadow-sm group-hover:bg-[#14B8A6] group-hover:text-white transition-all">
                                     {{ substr($s->name, 0, 1) }}
                                 </div>
                                 <span class="font-black text-slate-700">{{ $s->name }}</span>
@@ -174,7 +174,7 @@ $cancel = function () {
                         <td colspan="4" class="px-8 py-20 text-center">
                             <div class="flex flex-col items-center justify-center">
                                 <p class="text-slate-400 font-bold italic mb-4">Belum ada data supplier.</p>
-                                <button wire:click="$set('showForm', true)" class="text-sm font-black text-[#E97D5A] uppercase tracking-widest border-b-2 border-orange-100 hover:border-orange-200">Klik untuk tambah</button>
+                                <button wire:click="$set('showForm', true)" class="text-sm font-black text-[#14B8A6] uppercase tracking-widest border-b-2 border-teal-100 hover:border-teal-200">Klik untuk tambah</button>
                             </div>
                         </td>
                     </tr>

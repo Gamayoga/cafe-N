@@ -69,7 +69,7 @@ $criticalIngredients = computed(function () {
         </div>
         
         <div class="flex items-center gap-4 bg-white p-2 pr-6 rounded-[2rem] shadow-sm border border-slate-100">
-            <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-[#E97D5A]">
+            <div class="w-12 h-12 bg-teal-50 rounded-2xl flex items-center justify-center text-[#14B8A6]">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
             <div>
@@ -86,20 +86,20 @@ $criticalIngredients = computed(function () {
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Penjualan Anda (Hari Ini)</p>
                 <p class="text-3xl font-black text-white tracking-tighter">Rp {{ number_format($this->stats['revenue'], 0, ',', '.') }}</p>
             </div>
-            <div class="absolute -right-4 -bottom-4 w-32 h-32 bg-[#E97D5A] opacity-10 rounded-full blur-3xl group-hover:opacity-20 transition-opacity"></div>
+            <div class="absolute -right-4 -bottom-4 w-32 h-32 bg-[#14B8A6] opacity-10 rounded-full blur-3xl group-hover:opacity-20 transition-opacity"></div>
         </div>
 
         <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100">
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Transaksi</p>
-            <p class="text-3xl font-black text-slate-800 tracking-tighter">{{ $this->stats['count'] }} <span class="text-sm text-slate-300 font-bold tracking-normal underline underline-offset-4 decoration-orange-200">Pesanan</span></p>
+            <p class="text-3xl font-black text-slate-800 tracking-tighter">{{ $this->stats['count'] }} <span class="text-sm text-slate-300 font-bold tracking-normal underline underline-offset-4 decoration-teal-200">Pesanan</span></p>
         </div>
 
         <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 flex items-center justify-between">
             <div>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Update Terakhir</p>
-                <p class="text-3xl font-black text-slate-800 tracking-tighter">{{ $this->stats['last_sync'] }} <span class="text-xs text-[#E97D5A]">WIB</span></p>
+                <p class="text-3xl font-black text-slate-800 tracking-tighter">{{ $this->stats['last_sync'] }} <span class="text-xs text-[#14B8A6]">WIB</span></p>
             </div>
-            <button wire:click="$refresh" class="w-12 h-12 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center hover:bg-[#E97D5A] hover:text-white transition-all">
+            <button wire:click="$refresh" class="w-12 h-12 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center hover:bg-[#14B8A6] hover:text-white transition-all">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
             </button>
         </div>
@@ -147,7 +147,7 @@ $criticalIngredients = computed(function () {
                             
                             <div class="flex items-center gap-2">
                                 @if($item['estimate'] !== null)
-                                    <span class="text-xl font-black {{ $item['status'] == 'Habis' ? 'text-rose-600' : ($item['status'] == 'Menipis' ? 'text-amber-600' : 'text-[#E97D5A]') }}">
+                                    <span class="text-xl font-black {{ $item['status'] == 'Habis' ? 'text-rose-600' : ($item['status'] == 'Menipis' ? 'text-amber-600' : 'text-[#14B8A6]') }}">
                                         {{ $item['estimate'] }}
                                     </span>
                                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Porsi Tersedia</span>
@@ -174,7 +174,7 @@ $criticalIngredients = computed(function () {
                 @empty
                 <div class="col-span-full py-20 bg-white border-2 border-dashed border-slate-100 rounded-[2.5rem] flex flex-col items-center justify-center text-center">
                     <p class="text-slate-300 font-bold italic mb-4">Belum ada menu yang didaftarkan atau tersedia.</p>
-                    <a href="{{ route('cashier.pos') }}" class="text-xs font-black text-[#E97D5A] uppercase tracking-widest underline underline-offset-4">Buka POS</a>
+                    <a href="{{ route('cashier.pos') }}" class="text-xs font-black text-[#14B8A6] uppercase tracking-widest underline underline-offset-4">Buka POS</a>
                 </div>
                 @endforelse
             </div>
@@ -196,7 +196,7 @@ $criticalIngredients = computed(function () {
                         <div class="flex items-center gap-4">
                             <div class="w-2 h-8 {{ $ing->stock_qty <= 0 ? 'bg-rose-500' : 'bg-amber-400' }} rounded-full"></div>
                             <div>
-                                <p class="text-sm font-black text-slate-700 leading-none mb-1 group-hover:text-[#E97D5A] transition-colors">{{ $ing->name }}</p>
+                                <p class="text-sm font-black text-slate-700 leading-none mb-1 group-hover:text-[#14B8A6] transition-colors">{{ $ing->name }}</p>
                                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Batas Min: {{ $ing->min_stock }} {{ $ing->unit }}</p>
                             </div>
                         </div>
