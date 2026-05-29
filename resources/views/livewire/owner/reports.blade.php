@@ -160,7 +160,7 @@ $detailedTransactions = computed(function () {
                 <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Hingga</span>
                 <input type="date" wire:model.live="endDate" class="border-0 p-0 text-sm font-black text-slate-700 focus:ring-0 bg-transparent">
             </div>
-            <button wire:click="$refresh" class="w-10 h-10 bg-[#E97D5A] text-white rounded-xl flex items-center justify-center hover:scale-105 transition-all shadow-lg shadow-orange-100">
+            <button wire:click="$refresh" class="w-10 h-10 bg-[#14B8A6] text-white rounded-xl flex items-center justify-center hover:scale-105 transition-all shadow-lg shadow-teal-100">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" 
                     d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
@@ -189,7 +189,7 @@ $detailedTransactions = computed(function () {
                     <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span> Data Terkini
                 </div>
             </div>
-            <div class="absolute -right-4 -bottom-4 w-32 h-32 bg-[#E97D5A] opacity-10 rounded-full blur-3xl group-hover:opacity-20 transition-opacity"></div>
+            <div class="absolute -right-4 -bottom-4 w-32 h-32 bg-[#14B8A6] opacity-10 rounded-full blur-3xl group-hover:opacity-20 transition-opacity"></div>
         </div>
 
         <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100">
@@ -212,7 +212,7 @@ $detailedTransactions = computed(function () {
             <div class="flex items-center justify-between mb-8">
                 <h3 class="text-xl font-extrabold text-slate-800 tracking-tight">Tren Penjualan</h3>
                 <span class="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase">
-                    <span class="w-3 h-3 bg-[#E97D5A] rounded-full"></span> Pendapatan
+                    <span class="w-3 h-3 bg-[#14B8A6] rounded-full"></span> Pendapatan
                 </span>
             </div>
 
@@ -239,14 +239,14 @@ $detailedTransactions = computed(function () {
                         <svg viewBox="0 0 700 100" class="w-full h-full overflow-visible" preserveAspectRatio="none">
                             <defs>
                                 <linearGradient id="grad-rpt" x1="0%" y1="0%" x2="0%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#E97D5A;stop-opacity:0.22"/>
-                                    <stop offset="100%" style="stop-color:#E97D5A;stop-opacity:0"/>
+                                    <stop offset="0%" style="stop-color:#14B8A6;stop-opacity:0.22"/>
+                                    <stop offset="100%" style="stop-color:#14B8A6;stop-opacity:0"/>
                                 </linearGradient>
                             </defs>
                             @if($this->chartData['count'] > 1)
                             <polyline fill="url(#grad-rpt)" stroke="none"
                                 points="0,100 {{ $this->chartData['points'] }} 700,100"/>
-                            <polyline fill="none" stroke="#E97D5A" stroke-width="2.5"
+                            <polyline fill="none" stroke="#14B8A6" stroke-width="2.5"
                                 stroke-linecap="round" stroke-linejoin="round"
                                 vector-effect="non-scaling-stroke"
                                 points="{{ $this->chartData['points'] }}"/>
@@ -257,7 +257,7 @@ $detailedTransactions = computed(function () {
                         @foreach($this->chartData['items'] as $d)
                         <div class="absolute group cursor-pointer"
                              style="left:{{ $d['x_pct'] }}%;top:{{ $d['y_pct'] }}%;transform:translate(-50%,-50%);z-index:20">
-                            <div class="w-2.5 h-2.5 rounded-full bg-white border-2 border-[#E97D5A]"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-white border-2 border-[#14B8A6]"></div>
                             <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-slate-900 text-white text-[10px] font-black px-3 py-2 rounded-2xl opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap z-30 shadow-xl scale-90 group-hover:scale-100 pointer-events-none">
                                 <p class="text-[9px] text-slate-400 mb-0.5">{{ $d['full_date'] }}</p>
                                 Rp {{ number_format($d['value'], 0, ',', '.') }}
@@ -280,7 +280,7 @@ $detailedTransactions = computed(function () {
                     <div class="flex border-t border-slate-100 pt-1.5 mt-0.5">
                         @foreach($this->chartData['months'] as $month)
                         <div class="overflow-hidden min-w-0" style="flex:{{ $month['count'] }}">
-                            <span class="text-[9px] font-black text-[#E97D5A] uppercase tracking-widest">{{ $month['label'] }}</span>
+                            <span class="text-[9px] font-black text-[#14B8A6] uppercase tracking-widest">{{ $month['label'] }}</span>
                         </div>
                         @endforeach
                     </div>
@@ -295,7 +295,7 @@ $detailedTransactions = computed(function () {
                 @forelse($this->topProducts as $idx => $item)
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-xl bg-orange-50 text-[#E97D5A] flex items-center justify-center text-[10px] font-black">
+                        <div class="w-8 h-8 rounded-xl bg-teal-50 text-[#14B8A6] flex items-center justify-center text-[10px] font-black">
                             {{ $idx + 1 }}
                         </div>
                         <div>

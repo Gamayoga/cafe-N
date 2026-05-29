@@ -6,7 +6,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: sans-serif; font-size: 11px; color: #1a1a1a; padding: 30px; }
 
-        .header { text-align: center; border-bottom: 3px solid #E97D5A; padding-bottom: 14px; margin-bottom: 20px; }
+        .header { text-align: center; border-bottom: 3px solid #14B8A6; padding-bottom: 14px; margin-bottom: 20px; }
         .header h1 { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; text-transform: uppercase; }
         .header p { font-size: 10px; color: #666; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
 
@@ -18,7 +18,7 @@
         .section-title { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: #374151; margin-bottom: 8px; margin-top: 20px; }
 
         table { width: 100%; border-collapse: collapse; font-size: 10px; }
-        thead tr { background-color: #E97D5A; color: white; }
+        thead tr { background-color: #14B8A6; color: white; }
         thead th { padding: 7px 10px; text-align: left; font-weight: 700; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; }
         tbody tr:nth-child(even) { background-color: #f9fafb; }
         tbody td { padding: 6px 10px; border-bottom: 1px solid #f3f4f6; }

@@ -45,11 +45,11 @@ $logs = computed(fn () =>
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </span>
             <input wire:model.live="search" type="text" placeholder="Cari bahan baku..." 
-                   class="pl-12 pr-6 py-3 bg-slate-50 border-0 rounded-2xl w-full text-sm font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                   class="pl-12 pr-6 py-3 bg-slate-50 border-0 rounded-2xl w-full text-sm font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all">
         </div>
 
         <div class="flex items-center gap-4 w-full md:w-auto">
-            <select wire:model.live="type" class="px-6 py-3 bg-slate-50 border-0 rounded-2xl text-sm font-bold text-slate-600 focus:ring-2 focus:ring-[#E97D5A] transition-all appearance-none cursor-pointer pr-10">
+            <select wire:model.live="type" class="px-6 py-3 bg-slate-50 border-0 rounded-2xl text-sm font-bold text-slate-600 focus:ring-2 focus:ring-[#14B8A6] transition-all appearance-none cursor-pointer pr-10">
                 <option value="">Semua Tipe</option>
                 <option value="in">Barang Masuk</option>
                 <option value="out">Barang Keluar</option>

@@ -112,7 +112,7 @@ $recentAttendance = computed(function () {
         <div class="bg-[#1A1A1A] rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden group">
             <div class="relative z-10 flex flex-col h-full justify-between">
                 <div class="flex items-center gap-4 mb-6">
-                    <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-[#E97D5A]">
+                    <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-[#14B8A6]">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Pendapatan <br>Hari Ini</p>
@@ -130,13 +130,13 @@ $recentAttendance = computed(function () {
                     @endif
                 </div>
             </div>
-            <div class="absolute -right-4 -bottom-4 w-32 h-32 bg-[#E97D5A] opacity-10 rounded-full blur-3xl group-hover:opacity-20 transition-opacity"></div>
+            <div class="absolute -right-4 -bottom-4 w-32 h-32 bg-[#14B8A6] opacity-10 rounded-full blur-3xl group-hover:opacity-20 transition-opacity"></div>
         </div>
 
         <!-- Transaction Card -->
         <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 flex flex-col justify-between">
             <div class="flex items-center gap-4 mb-6">
-                <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-[#E97D5A]">
+                <div class="w-12 h-12 bg-teal-50 rounded-2xl flex items-center justify-center text-[#14B8A6]">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                 </div>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Total <br>Transaksi</p>
@@ -191,7 +191,7 @@ $recentAttendance = computed(function () {
         <div class="lg:col-span-8 bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
             <div class="flex items-center justify-between mb-10">
                 <h3 class="text-xl font-extrabold text-slate-800 tracking-tight">Pendapatan 7 hari terakhir</h3>
-                <span class="text-[10px] font-black text-[#E97D5A] uppercase tracking-widest">Update Real-time</span>
+                <span class="text-[10px] font-black text-[#14B8A6] uppercase tracking-widest">Update Real-time</span>
             </div>
             <!-- Visual Chart -->
             <div class="relative h-64 w-full pt-10">
@@ -207,8 +207,8 @@ $recentAttendance = computed(function () {
         <svg viewBox="0 0 700 100" class="w-full h-full overflow-visible" preserveAspectRatio="none">
             <defs>
                 <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style="stop-color:#E97D5A;stop-opacity:0.25" />
-                    <stop offset="100%" style="stop-color:#E97D5A;stop-opacity:0" />
+                    <stop offset="0%" style="stop-color:#14B8A6;stop-opacity:0.25" />
+                    <stop offset="100%" style="stop-color:#14B8A6;stop-opacity:0" />
                 </linearGradient>
             </defs>
 
@@ -217,7 +217,7 @@ $recentAttendance = computed(function () {
 
             <polyline
                 fill="none"
-                stroke="#E97D5A"
+                stroke="#14B8A6"
                 stroke-width="2.5"
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -232,7 +232,7 @@ $recentAttendance = computed(function () {
                 $xPct = ($idx / 6) * 100;
                 $yPct = 100 - ($data['height'] * 0.8 + 10);
             @endphp
-            <div class="absolute w-2.5 h-2.5 rounded-full bg-white border-2 border-[#E97D5A] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            <div class="absolute w-2.5 h-2.5 rounded-full bg-white border-2 border-[#14B8A6] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                  style="left: {{ $xPct }}%; top: {{ $yPct }}%;"></div>
         @endforeach
 
@@ -247,7 +247,7 @@ $recentAttendance = computed(function () {
                     <div class="absolute bottom-[-5px] left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-slate-900 rotate-45"></div>
                 </div>
 
-                <div class="absolute -bottom-14 left-1/2 -translate-x-1/2 text-[11px] font-black text-slate-400 uppercase tracking-tight group-hover:text-[#E97D5A] transition-colors">
+                <div class="absolute -bottom-14 left-1/2 -translate-x-1/2 text-[11px] font-black text-slate-400 uppercase tracking-tight group-hover:text-[#14B8A6] transition-colors">
                     {{ $data['day'] }}
                 </div>
             </div>
@@ -261,16 +261,16 @@ $recentAttendance = computed(function () {
         <div class="lg:col-span-4 bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
     <div class="flex items-center justify-between mb-10">
         <h3 class="text-xl font-extrabold text-slate-800 tracking-tight leading-tight">Menu unggulan</h3>
-        <a href="{{ route('owner.inventory.products') }}" class="text-xs font-black text-[#E97D5A] uppercase tracking-widest text-right hover:underline">Semua</a>
+        <a href="{{ route('owner.inventory.products') }}" class="text-xs font-black text-[#14B8A6] uppercase tracking-widest text-right hover:underline">Semua</a>
     </div>
     <div class="space-y-6">
         @forelse($this->topProducts as $idx => $product)
             @php
                 // Definisi warna berbeda untuk tiap peringkat
-                $bgColors = ['bg-orange-100', 'bg-rose-100', 'bg-amber-100', 'bg-emerald-100'];
-                $textColors = ['text-orange-600', 'text-rose-600', 'text-amber-600', 'text-emerald-600'];
-                $borderColors = ['border-orange-200', 'border-rose-200', 'border-amber-200', 'border-emerald-200'];
-                $hoverColors = ['group-hover:bg-orange-600', 'group-hover:bg-rose-600', 'group-hover:bg-amber-600', 'group-hover:bg-emerald-600'];
+                $bgColors = ['bg-teal-100', 'bg-rose-100', 'bg-amber-100', 'bg-emerald-100'];
+                $textColors = ['text-teal-600', 'text-rose-600', 'text-amber-600', 'text-emerald-600'];
+                $borderColors = ['border-teal-200', 'border-rose-200', 'border-amber-200', 'border-emerald-200'];
+                $hoverColors = ['group-hover:bg-teal-600', 'group-hover:bg-rose-600', 'group-hover:bg-amber-600', 'group-hover:bg-emerald-600'];
                 
                 $i = $idx % 4; // Supaya tidak error jika data lebih dari 4
             @endphp
@@ -308,7 +308,7 @@ $recentAttendance = computed(function () {
         <div class="lg:col-span-4 bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
             <div class="flex items-center justify-between mb-8">
                 <h3 class="text-xl font-extrabold text-slate-800 tracking-tight">Status Stok Menipis</h3>
-                <a href="{{ route('owner.inventory.ingredients') }}" class="text-xs font-black text-[#E97D5A] uppercase tracking-widest hover:underline">Detail</a>
+                <a href="{{ route('owner.inventory.ingredients') }}" class="text-xs font-black text-[#14B8A6] uppercase tracking-widest hover:underline">Detail</a>
             </div>
             <div class="space-y-4">
                 @forelse($this->lowStockItems as $i)
@@ -335,13 +335,13 @@ $recentAttendance = computed(function () {
         <div class="lg:col-span-4 bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
             <div class="flex items-center justify-between mb-8">
                 <h3 class="text-xl font-extrabold text-slate-800 tracking-tight">Presensi Kehadiran Pegawai</h3>
-                <a href="{{ route('owner.attendance') }}" class="text-xs font-black text-[#E97D5A] uppercase tracking-widest hover:underline">Lengkap</a>
+                <a href="{{ route('owner.attendance') }}" class="text-xs font-black text-[#14B8A6] uppercase tracking-widest hover:underline">Lengkap</a>
             </div>
             <div class="space-y-4">
                 @forelse($this->recentAttendance as $att)
                 <div class="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 group">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-xl bg-[#111111] text-white flex items-center justify-center text-[10px] font-black uppercase group-hover:bg-[#E97D5A] transition-colors">
+                        <div class="w-8 h-8 rounded-xl bg-[#0A2A2F] text-white flex items-center justify-center text-[10px] font-black uppercase group-hover:bg-[#14B8A6] transition-colors">
                             {{ substr($att->user->name, 0, 1) }}
                         </div>
                         <div>

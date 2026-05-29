@@ -110,7 +110,7 @@ $cancel = function () {
             <p class="text-slate-400 font-bold mt-1 uppercase text-[10px] tracking-[0.2em]">Manajemen / Pegawai</p>
         </div>
         <button wire:click="$toggle('showForm'); $set('resetPasswordId', null)"
-                class="px-6 py-3 bg-[#E97D5A] text-white rounded-2xl font-black text-sm shadow-lg shadow-orange-100/50 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                class="px-6 py-3 bg-[#14B8A6] text-white rounded-2xl font-black text-sm shadow-lg shadow-teal-100/50 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
             {{ $showForm ? 'Tutup Form' : 'Tambah Pegawai Baru' }}
         </button>
@@ -118,7 +118,7 @@ $cancel = function () {
 
     @if($showForm)
     <!-- Add/Edit Form -->
-    <div class="bg-white rounded-[2.5rem] p-10 shadow-xl border border-orange-50">
+    <div class="bg-white rounded-[2.5rem] p-10 shadow-xl border border-teal-50">
         <h2 class="text-2xl font-black text-slate-800 mb-8">
             {{ $editingUserId ? 'Ubah Data Pegawai' : 'Daftarkan Pegawai Baru' }}
         </h2>
@@ -136,20 +136,20 @@ $cancel = function () {
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Nama Lengkap</label>
                     <input wire:model="name" type="text" placeholder="Contoh: Andi Ramadhan"
-                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all">
                     @error('name') <span class="text-rose-500 text-xs font-bold mt-1 ml-1">{{ $message }}</span> @enderror
                 </div>
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Email Login</label>
                     <input wire:model="email" type="email" placeholder="andi@northern.com"
-                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all">
                     @error('email') <span class="text-rose-500 text-xs font-bold mt-1 ml-1">{{ $message }}</span> @enderror
                 </div>
                 @if(!$editingUserId)
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Password Awal</label>
                     <input wire:model="password" type="password" placeholder="Min. 6 karakter"
-                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all">
                     @error('password') <span class="text-rose-500 text-xs font-bold mt-1 ml-1">{{ $message }}</span> @enderror
                 </div>
                 @endif
@@ -176,10 +176,10 @@ $cancel = function () {
             <div class="flex items-start gap-6">
                 <div class="flex-1">
                     <input wire:model="newPassword" type="password" placeholder="Password baru (min. 6 karakter)"
-                           class="w-full px-6 py-4 bg-white/10 border border-white/10 rounded-2xl text-white font-bold placeholder:text-gray-600 focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                           class="w-full px-6 py-4 bg-white/10 border border-white/10 rounded-2xl text-white font-bold placeholder:text-gray-600 focus:ring-2 focus:ring-[#14B8A6] transition-all">
                     @error('newPassword') <span class="text-rose-400 text-xs font-bold mt-1 ml-1">{{ $message }}</span> @enderror
                 </div>
-                <button wire:click="doResetPassword" class="px-8 py-4 bg-[#E97D5A] text-white rounded-2xl font-black text-sm hover:scale-105 transition-all shadow-lg whitespace-nowrap">Set Password</button>
+                <button wire:click="doResetPassword" class="px-8 py-4 bg-[#14B8A6] text-white rounded-2xl font-black text-sm hover:scale-105 transition-all shadow-lg whitespace-nowrap">Set Password</button>
                 <button wire:click="$set('resetPasswordId', null)" class="px-8 py-4 bg-white/10 text-white rounded-2xl font-black text-sm hover:bg-white/20 transition-all">Batal</button>
             </div>
         </div>
@@ -195,7 +195,7 @@ $cancel = function () {
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </span>
                 <input wire:model.live="search" type="text" placeholder="Cari nama pegawai..."
-                       class="pl-12 pr-6 py-3 bg-slate-50 border-0 rounded-2xl w-full md:w-72 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#E97D5A] transition-all">
+                       class="pl-12 pr-6 py-3 bg-slate-50 border-0 rounded-2xl w-full md:w-72 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#14B8A6] transition-all">
             </div>
         </div>
 
@@ -215,7 +215,7 @@ $cancel = function () {
                     <tr class="hover:bg-slate-50/50 transition-colors group">
                         <td class="px-8 py-6">
                             <div class="flex items-center gap-4">
-                                <div class="w-11 h-11 bg-[#111111] rounded-2xl flex items-center justify-center text-white font-black text-sm group-hover:bg-[#E97D5A] transition-colors">
+                                <div class="w-11 h-11 bg-[#0A2A2F] rounded-2xl flex items-center justify-center text-white font-black text-sm group-hover:bg-[#14B8A6] transition-colors">
                                     {{ strtoupper(substr($emp->name, 0, 1)) }}{{ strtoupper(substr(strrchr($emp->name, ' ') ?: '', 1, 1)) }}
                                 </div>
                                 <span class="font-black text-slate-700">{{ $emp->name }}</span>

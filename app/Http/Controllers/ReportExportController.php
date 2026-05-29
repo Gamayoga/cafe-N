@@ -78,7 +78,7 @@ class ReportExportController extends Controller
 
         $headerStyle = [
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'E97D5A']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '14B8A6']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ];
         $sheet->getStyle('A9:D9')->applyFromArray($headerStyle);
