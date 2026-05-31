@@ -14,23 +14,45 @@ state([
     'capturedPhoto' => null,
     'isCameraOpen' => false,
     'status' => 'idle',
-    'isOutOfShift' => false, // State baru untuk cek jam
+    'isOutOfShift' => false,
+    'shiftDate' => '',
 ]);
 
 mount(function () {
     $this->currentTime = now()->format('H:i');
-    
-    // Tentukan Batas Jam (Contoh: Jam Masuk max 09:00, Jam Pulang max 22:00)
-    $now = now();
-    $startLimit = Carbon::createFromTime(8, 0); // 08:00
-    $endLimit = Carbon::createFromTime(23, 0);   // 23:00
 
-    if ($now->lt($startLimit) || $now->gt($endLimit)) {
-        $this->isOutOfShift = true;
+    $user = auth()->user();
+    $now = now();
+
+    $startTime = $user && $user->shift_start
+        ? Carbon::parse($user->shift_start)->format('H:i:s')
+        : '08:00:00';
+    $endTime = $user && $user->shift_end
+        ? Carbon::parse($user->shift_end)->format('H:i:s')
+        : '23:00:00';
+
+    $isOvernight = $endTime <= $startTime;
+    $nowTime = $now->format('H:i:s');
+
+    // For shifts that cross midnight (e.g. 16:00 → 02:00), check-out happens "tomorrow"
+    // but belongs to the previous day's shift record.
+    if ($isOvernight && $nowTime <= $endTime) {
+        $this->shiftDate = $now->copy()->subDay()->toDateString();
+    } else {
+        $this->shiftDate = $now->toDateString();
+    }
+
+    if ($user && $user->is_attendance_debug) {
+        $this->isOutOfShift = false;
+    } else {
+        $inShift = $isOvernight
+            ? ($nowTime >= $startTime || $nowTime <= $endTime)
+            : ($nowTime >= $startTime && $nowTime <= $endTime);
+        $this->isOutOfShift = !$inShift;
     }
 
     $this->todayAttendance = Attendance::where('user_id', auth()->id())
-        ->where('date', today())
+        ->where('date', $this->shiftDate)
         ->first();
 });
 $canCheckIn = computed(fn() => !$this->todayAttendance);
@@ -49,7 +71,7 @@ $processAttendance = function () {
     if ($this->canCheckIn) {
         Attendance::create([
             'user_id' => auth()->id(),
-            'date' => today(),
+            'date' => $this->shiftDate,
             'check_in' => now(),
             'check_in_photo' => $imageName,
         ]);
@@ -62,7 +84,7 @@ $processAttendance = function () {
 
     $this->status = 'success';
     $this->todayAttendance = Attendance::where('user_id', auth()->id())
-        ->where('date', today())
+        ->where('date', $this->shiftDate)
         ->first();
     $this->isCameraOpen = false;
     $this->capturedPhoto = null;
@@ -203,7 +225,63 @@ $processAttendance = function () {
         </div>
 
     @elseif(!$this->todayAttendance || !$this->todayAttendance->check_out)
-        @else
+        @php
+            $actionLabel = $this->canCheckIn ? 'Check In' : 'Check Out';
+            $actionColor = $this->canCheckIn ? 'bg-emerald-500' : 'bg-rose-500';
+        @endphp
+
+        <div class="flex flex-col items-center text-center space-y-8">
+            <div class="space-y-2">
+                <h3 class="text-3xl font-black text-slate-900 tracking-tighter">Siap untuk {{ $actionLabel }}?</h3>
+                <p class="text-slate-400 font-bold uppercase text-[10px] tracking-[0.2em]">Ambil foto wajah Anda untuk verifikasi</p>
+            </div>
+
+            @if($capturedPhoto)
+                <div class="w-full aspect-square bg-slate-900 rounded-[2rem] overflow-hidden shadow-xl ring-4 ring-slate-100">
+                    <img src="{{ $capturedPhoto }}" class="w-full h-full object-cover" alt="Foto presensi">
+                </div>
+                <div class="w-full space-y-3">
+                    <button wire:click="processAttendance"
+                            wire:loading.attr="disabled"
+                            class="w-full px-8 py-5 {{ $actionColor }} text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50">
+                        <span wire:loading.remove wire:target="processAttendance">Konfirmasi {{ $actionLabel }}</span>
+                        <span wire:loading wire:target="processAttendance">Menyimpan...</span>
+                    </button>
+                    <button type="button"
+                            @click="$wire.set('capturedPhoto', null); $wire.set('isCameraOpen', true); $nextTick(() => initCamera())"
+                            class="w-full px-8 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-200 transition-all">
+                        Ambil Ulang
+                    </button>
+                </div>
+            @elseif($isCameraOpen)
+                <div class="w-full aspect-square bg-slate-900 rounded-[2rem] overflow-hidden shadow-xl ring-4 ring-slate-100 relative">
+                    <video x-ref="video" autoplay playsinline class="w-full h-full object-cover"></video>
+                </div>
+                <div class="w-full space-y-3">
+                    <button type="button" @click="takeSnapshot()"
+                            class="w-full px-8 py-5 bg-[#0A2A2F] text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        Ambil Foto
+                    </button>
+                    <button type="button" @click="stopCamera(); $wire.set('isCameraOpen', false)"
+                            class="w-full px-8 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-200 transition-all">
+                        Batal
+                    </button>
+                </div>
+            @else
+                <div class="w-full aspect-square bg-slate-50 rounded-[2rem] flex flex-col items-center justify-center text-slate-300 border-2 border-dashed border-slate-200 gap-4">
+                    <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <p class="text-xs font-bold uppercase tracking-widest">Kamera Belum Aktif</p>
+                </div>
+                <button type="button"
+                        @click="$wire.set('isCameraOpen', true); $nextTick(() => initCamera())"
+                        class="w-full px-8 py-5 {{ $actionColor }} text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    Buka Kamera untuk {{ $actionLabel }}
+                </button>
+            @endif
+        </div>
+    @else
         <div class="flex flex-col items-center text-center space-y-6">
             <div class="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-[2.5rem] flex items-center justify-center shadow-lg">
                 <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>

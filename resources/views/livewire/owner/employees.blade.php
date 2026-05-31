@@ -11,6 +11,9 @@ state([
     'name' => '',
     'email' => '',
     'password' => '',
+    'shift_start' => '08:00',
+    'shift_end' => '17:00',
+    'is_attendance_debug' => false,
     'editingUserId' => null,
     'showForm' => false,
     'resetPasswordId' => null,
@@ -22,6 +25,8 @@ rules([
     'name' => 'required|min:2',
     'email' => 'required|email',
     'password' => 'required|min:6',
+    'shift_start' => 'nullable|date_format:H:i',
+    'shift_end' => 'nullable|date_format:H:i',
 ]);
 
 $employees = computed(fn () =>
@@ -37,16 +42,23 @@ $save = function () {
             $this->validate([
                 'name' => 'required|min:2',
                 'email' => 'required|email|unique:users,email,' . $this->editingUserId,
+                'shift_start' => 'nullable|date_format:H:i',
+                'shift_end' => 'nullable|date_format:H:i',
             ]);
             User::find($this->editingUserId)->update([
                 'name' => $this->name,
                 'email' => $this->email,
+                'shift_start' => $this->shift_start ?: null,
+                'shift_end' => $this->shift_end ?: null,
+                'is_attendance_debug' => (bool) $this->is_attendance_debug,
             ]);
         } else {
             $this->validate([
                 'name' => 'required|min:2',
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required|min:6',
+                'shift_start' => 'nullable|date_format:H:i',
+                'shift_end' => 'nullable|date_format:H:i',
             ]);
             User::create([
                 'name' => $this->name,
@@ -54,10 +66,13 @@ $save = function () {
                 'password' => Hash::make($this->password),
                 'role' => 'pegawai',
                 'is_active' => true,
+                'shift_start' => $this->shift_start ?: null,
+                'shift_end' => $this->shift_end ?: null,
+                'is_attendance_debug' => (bool) $this->is_attendance_debug,
             ]);
         }
         $this->errorMessage = '';
-        $this->reset('name', 'email', 'password', 'editingUserId', 'showForm');
+        $this->reset('name', 'email', 'password', 'shift_start', 'shift_end', 'is_attendance_debug', 'editingUserId', 'showForm');
     } catch (\Exception $e) {
         $this->errorMessage = "Gagal menyimpan data: " . $e->getMessage();
     }
@@ -69,6 +84,9 @@ $edit = function ($id) {
     $this->name = $u->name;
     $this->email = $u->email;
     $this->password = '';
+    $this->shift_start = $u->shift_start ? \Carbon\Carbon::parse($u->shift_start)->format('H:i') : '';
+    $this->shift_end = $u->shift_end ? \Carbon\Carbon::parse($u->shift_end)->format('H:i') : '';
+    $this->is_attendance_debug = (bool) $u->is_attendance_debug;
     $this->showForm = true;
     $this->resetPasswordId = null;
 };
@@ -97,7 +115,7 @@ $delete = function ($id) {
 };
 
 $cancel = function () {
-    $this->reset('name', 'email', 'password', 'editingUserId', 'showForm', 'resetPasswordId', 'newPassword', 'errorMessage');
+    $this->reset('name', 'email', 'password', 'shift_start', 'shift_end', 'is_attendance_debug', 'editingUserId', 'showForm', 'resetPasswordId', 'newPassword', 'errorMessage');
 };
 
 ?>
@@ -154,6 +172,28 @@ $cancel = function () {
                 </div>
                 @endif
             </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Mulai Shift</label>
+                    <input wire:model="shift_start" type="time"
+                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all">
+                    @error('shift_start') <span class="text-rose-500 text-xs font-bold mt-1 ml-1">{{ $message }}</span> @enderror
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Selesai Shift</label>
+                    <input wire:model="shift_end" type="time"
+                           class="w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-[#14B8A6] transition-all">
+                    @error('shift_end') <span class="text-rose-500 text-xs font-bold mt-1 ml-1">{{ $message }}</span> @enderror
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Mode Debug Presensi</label>
+                    <label class="flex items-center gap-3 px-6 py-4 bg-slate-50 rounded-2xl cursor-pointer hover:bg-slate-100 transition-all">
+                        <input wire:model="is_attendance_debug" type="checkbox" class="w-5 h-5 rounded text-[#14B8A6] focus:ring-[#14B8A6]">
+                        <span class="text-sm font-bold text-slate-700">Bisa presensi kapan saja (untuk debug/test)</span>
+                    </label>
+                </div>
+            </div>
             <div class="flex justify-end gap-4 pt-4 border-t border-slate-50">
                 <button type="button" wire:click="cancel" class="px-8 py-4 bg-slate-100 text-slate-500 rounded-2xl font-black text-sm hover:bg-slate-200 transition-all">Batal</button>
                 <button type="submit" class="px-8 py-4 bg-[#1A1A1A] text-white rounded-2xl font-black text-sm shadow-xl hover:scale-105 active:scale-95 transition-all">
@@ -205,6 +245,7 @@ $cancel = function () {
                     <tr class="bg-slate-50/50">
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Pegawai</th>
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Email</th>
+                        <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Shift</th>
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Bergabung</th>
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status Akun</th>
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Aksi</th>
@@ -223,6 +264,17 @@ $cancel = function () {
                         </td>
                         <td class="px-8 py-6">
                             <span class="font-bold text-slate-500">{{ $emp->email }}</span>
+                        </td>
+                        <td class="px-8 py-6">
+                            @if($emp->is_attendance_debug)
+                                <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider text-indigo-600 bg-indigo-50">● Debug</span>
+                            @elseif($emp->shift_start && $emp->shift_end)
+                                <span class="font-bold text-slate-600 text-sm tabular-nums">
+                                    {{ \Carbon\Carbon::parse($emp->shift_start)->format('H:i') }} – {{ \Carbon\Carbon::parse($emp->shift_end)->format('H:i') }}
+                                </span>
+                            @else
+                                <span class="font-bold text-slate-300 italic text-sm">—</span>
+                            @endif
                         </td>
                         <td class="px-8 py-6">
                             <span class="font-bold text-slate-400 text-sm">{{ $emp->created_at?->format('d M Y') }}</span>
@@ -253,7 +305,7 @@ $cancel = function () {
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-8 py-20 text-center">
+                        <td colspan="6" class="px-8 py-20 text-center">
                             <div class="flex flex-col items-center justify-center">
                                 <p class="text-slate-400 font-bold italic">Belum ada akun pegawai.</p>
                             </div>

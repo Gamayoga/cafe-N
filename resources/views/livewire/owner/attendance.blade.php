@@ -30,18 +30,27 @@ $attendanceData = computed(function () {
 
     return $employees->map(function ($emp) use ($records) {
         $att = $records->get($emp->id);
+        $shiftStart = $emp->shift_start
+            ? \Carbon\Carbon::parse($emp->shift_start)->format('H:i')
+            : '08:00';
+        $lateThreshold = strtotime(
+            $this->selectedDate . ' ' . $shiftStart
+        ) + 15 * 60;
+
         return [
             "id" => $emp->id,
             "name" => $emp->name,
+            "shift" => $emp->shift_start && $emp->shift_end
+                ? \Carbon\Carbon::parse($emp->shift_start)->format('H:i') . ' – ' . \Carbon\Carbon::parse($emp->shift_end)->format('H:i')
+                : ($emp->is_attendance_debug ? 'Debug' : '—'),
             "check_in" => $att?->check_in,
             "check_out" => $att?->check_out,
             "notes" => $att?->notes,
             "check_in_photo" => $att?->check_in_photo,
             "check_out_photo" => $att?->check_out_photo,
             "status" => $att
-                ? ($att->check_in &&
-                strtotime($att->check_in) >
-                    strtotime($this->selectedDate . " 08:15:00")
+                ? ($att->check_in && !$emp->is_attendance_debug &&
+                strtotime($att->check_in) > $lateThreshold
                     ? "Terlambat"
                     : "On Time")
                 : "Tidak Hadir",
@@ -103,7 +112,7 @@ $summary = computed(function () {
                 Kehadiran {{ \Carbon\Carbon::parse($selectedDate)->translatedFormat('d F Y') }}
             </h3>
             <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                Batas masuk: <span class="text-slate-700">08:15 WIB</span>
+                Batas Terlambat: <span class="text-slate-700">Shift + 15 menit</span>
             </span>
         </div>
 
@@ -112,6 +121,7 @@ $summary = computed(function () {
                 <thead>
                     <tr class="bg-slate-50/50">
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Pegawai</th>
+                        <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Shift</th>
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Masuk</th>
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Foto</th>
                         <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Pulang</th>
@@ -144,6 +154,15 @@ $summary = computed(function () {
                                 </div>
                                 <span class="font-black text-slate-700">{{ $row['name'] }}</span>
                             </div>
+                        </td>
+                        <td class="px-8 py-6 text-center">
+                            @if($row['shift'] === 'Debug')
+                                <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider text-indigo-600 bg-indigo-50">● Debug</span>
+                            @elseif($row['shift'] === '—')
+                                <span class="text-slate-300 font-bold italic">—</span>
+                            @else
+                                <span class="font-bold text-slate-600 text-sm tabular-nums">{{ $row['shift'] }}</span>
+                            @endif
                         </td>
                         <td class="px-8 py-6 text-center">
                             @if($row['check_in'])
@@ -190,7 +209,7 @@ $summary = computed(function () {
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-8 py-20 text-center">
+                        <td colspan="7" class="px-8 py-20 text-center">
                             <div class="flex flex-col items-center justify-center">
                                 <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mb-4 border border-slate-100">
                                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
