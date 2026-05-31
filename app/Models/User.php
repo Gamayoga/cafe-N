@@ -24,6 +24,9 @@ class User extends Authenticatable
         'password',
         'role',
         'is_active',
+        'shift_start',
+        'shift_end',
+        'is_attendance_debug',
         'google_id',
         'google_token',
         'google_refresh_token',
@@ -49,6 +52,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
+            'is_attendance_debug' => 'boolean',
         ];
     }
 }
