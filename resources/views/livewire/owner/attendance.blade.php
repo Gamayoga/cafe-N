@@ -72,6 +72,18 @@ $attendanceData = computed(function () {
             }
         }
 
+        // Extract "Late checkout: ..." reason from notes if present
+        $lateReason = null;
+        if ($att && $att->notes && preg_match('/Late checkout:\s*([^|]+)/u', $att->notes, $m)) {
+            $lateReason = trim($m[1]);
+        }
+
+        // Detect late checkout even without reason — checkout > shift_end + 15 min
+        $isLateCheckout = false;
+        if ($att && $att->check_out && !$emp->is_attendance_debug) {
+            $isLateCheckout = strtotime($att->check_out) > ($shiftEndTs + 15 * 60);
+        }
+
         return [
             "id" => $emp->id,
             "att_id" => $att?->id,
@@ -86,6 +98,8 @@ $attendanceData = computed(function () {
             "check_out_photo" => $att?->check_out_photo,
             "covered_by_name" => $att?->coveredBy?->name,
             "manual_close" => (bool) ($att?->manual_close),
+            "late_checkout" => $isLateCheckout,
+            "late_reason" => $lateReason,
             "status" => $status,
         ];
     });
@@ -325,6 +339,15 @@ $closeManual = function ($attId) {
                                     @if($row['manual_close'])
                                         <div class="text-[10px] font-bold text-orange-500 uppercase tracking-wider mt-0.5">
                                             ⌛ Tutup manual
+                                        </div>
+                                    @endif
+                                    @if($row['late_checkout'])
+                                        <div class="text-[10px] font-bold text-amber-600 uppercase tracking-wider mt-0.5"
+                                             @if($row['late_reason']) title="{{ $row['late_reason'] }}" @endif>
+                                            ⚠ Late checkout
+                                            @if($row['late_reason'])
+                                                : <span class="normal-case font-bold text-amber-700">"{{ $row['late_reason'] }}"</span>
+                                            @endif
                                         </div>
                                     @endif
                                 </div>
